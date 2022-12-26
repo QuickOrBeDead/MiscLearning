@@ -18,36 +18,47 @@ public class Worker : BackgroundService
         _connection = connection;
     }
 
-    protected override Task ExecuteAsync(CancellationToken stoppingToken)
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        while (!stoppingToken.IsCancellationRequested)
-        {
-            var channel = _connection.CreateModel();
-
-            channel.ExchangeDeclare("Search", "fanout", true, false, null);
-            channel.QueueDeclare("Search", true, false, false);
-            channel.QueueBind("Search", "Search", string.Empty);
-
-            var consumer = new EventingBasicConsumer(channel);
-            consumer.Received += (_, e) =>
+        var consumeTask = Task.Factory.StartNew(() =>
             {
-                try
-                {
-                    var q = JsonSerializer.Deserialize<string>(Encoding.UTF8.GetString(e.Body.Span));
+                var model = _connection.CreateModel();
 
-                    _logger.LogInformation($"q: {q}");
+                model.QueueDeclare("Search", true, false, false);
 
-                    channel.BasicAck(e.DeliveryTag, false);
-                }
-                catch (Exception)
-                {
-                    channel.BasicNack(e.DeliveryTag, false, true);
+                var consumer = new EventingBasicConsumer(model);
+                consumer.Received += (_, e) =>
+                    {
+                        try
+                        {
+                            var q = JsonSerializer.Deserialize<string>(Encoding.UTF8.GetString(e.Body.Span));
 
-                    throw;
-                }
-            };
+                            _logger.LogInformation($"q: {q}");
+
+                            model.BasicAck(e.DeliveryTag, false);
+                        }
+                        catch (Exception)
+                        {
+                            model.BasicNack(e.DeliveryTag, false, true);
+
+                            throw;
+                        }
+                    };
+                return (model ,model.BasicConsume("Search", false, consumer));
+            }, stoppingToken);
+
+        await Task.Delay(Timeout.Infinite, stoppingToken);
+
+        var (channel, consumeTag) = await consumeTask;
+        if (channel != null)
+        {
+            if (consumeTag != null)
+            {
+                channel.BasicCancel(consumeTag);
+            }
+
+            channel.Close(200, "Goodbye");
+            channel.Dispose();
         }
-
-        return Task.CompletedTask;
     }
 }
