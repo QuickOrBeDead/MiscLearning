@@ -1,0 +1,22 @@
+version: '3.4'
+
+services:
+  searchapi:
+    image: ${DOCKER_REGISTRY-}searchapi
+    build:
+      context: .
+      dockerfile: SearchApi/Dockerfile
+
+  searchhandler:
+    image: ${DOCKER_REGISTRY-}searchhandler
+    build:
+      context: .
+      dockerfile: SearchHandler/Dockerfile
+
+
+  searchtargetapi:
+    image: ${DOCKER_REGISTRY-}searchtargetapi
+    build:
+      context: .
+      dockerfile: SearchTargetApi/Dockerfile
+
