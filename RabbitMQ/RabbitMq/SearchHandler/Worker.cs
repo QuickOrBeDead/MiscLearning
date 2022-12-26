@@ -1,21 +1,53 @@
-namespace SearchHandler
+namespace SearchHandler;
+
+using Microsoft.Extensions.Logging;
+using RabbitMQ.Client;
+using RabbitMQ.Client.Events;
+using System.Text.Json;
+using System.Text;
+
+public class Worker : BackgroundService
 {
-    public class Worker : BackgroundService
+    private readonly ILogger<Worker> _logger;
+
+    private readonly IConnection _connection;
+
+    public Worker(ILogger<Worker> logger, IConnection connection)
     {
-        private readonly ILogger<Worker> _logger;
+        _logger = logger;
+        _connection = connection;
+    }
 
-        public Worker(ILogger<Worker> logger)
+    protected override Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        while (!stoppingToken.IsCancellationRequested)
         {
-            _logger = logger;
-        }
+            var channel = _connection.CreateModel();
 
-        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
-        {
-            while (!stoppingToken.IsCancellationRequested)
+            channel.ExchangeDeclare("Search", "fanout", true, false, null);
+            channel.QueueDeclare("Search", true, false, false);
+            channel.QueueBind("Search", "Search", string.Empty);
+
+            var consumer = new EventingBasicConsumer(channel);
+            consumer.Received += (_, e) =>
             {
-                _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
-                await Task.Delay(1000, stoppingToken);
-            }
+                try
+                {
+                    var q = JsonSerializer.Deserialize<string>(Encoding.UTF8.GetString(e.Body.Span));
+
+                    _logger.LogInformation($"q: {q}");
+
+                    channel.BasicAck(e.DeliveryTag, false);
+                }
+                catch (Exception)
+                {
+                    channel.BasicNack(e.DeliveryTag, false, true);
+
+                    throw;
+                }
+            };
         }
+
+        return Task.CompletedTask;
     }
 }
