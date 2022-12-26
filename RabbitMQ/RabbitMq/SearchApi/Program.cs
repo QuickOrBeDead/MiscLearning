@@ -1,32 +1,31 @@
-var builder = WebApplication.CreateBuilder(args);
+using RabbitMQ.Client;
+using System.Text.Json;
+using System.Text;
 
-// Add services to the container.
+var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddSingleton(
+    _ =>
+        {
+            var factory = new ConnectionFactory {HostName = "rabbitmq", UserName = "guest", Password = "guest"};
+            return factory.CreateConnection();
+        });
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+app.MapGet("/search", (string q, IConnection connection) =>
+    {
+        using (var channel = connection.CreateModel())
+        {
+            channel.ExchangeDeclare("Search", "fanout", true, false, null);
+            channel.QueueDeclare("Search", false, false, false, null);
+            channel.BasicPublish(
+                "Search",
+                string.Empty,
+            null,
+                Encoding.UTF8.GetBytes(JsonSerializer.Serialize(q)));
+        }
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast = Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateTime.Now.AddDays(index),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-});
+        return Results.Ok();
+    });
 
 app.Run();
-
-internal record WeatherForecast(DateTime Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
