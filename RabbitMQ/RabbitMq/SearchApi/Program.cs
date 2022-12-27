@@ -12,7 +12,7 @@ builder.Services.AddSingleton(
 
 var app = builder.Build();
 
-app.MapGet("/search", (string q, IConnection connection) =>
+app.MapGet("/search-product/{id}", (int id, IConnection connection) =>
     {
         using (var channel = connection.CreateModel())
         {
@@ -21,7 +21,7 @@ app.MapGet("/search", (string q, IConnection connection) =>
                 "",
                 "Search",
             null,
-                Encoding.UTF8.GetBytes(JsonSerializer.Serialize(q)));
+                Encoding.UTF8.GetBytes(JsonSerializer.Serialize(id)));
         }
 
         return Results.Ok();

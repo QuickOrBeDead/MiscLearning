@@ -5,6 +5,7 @@ using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System.Text.Json;
 using System.Text;
+using System.Net.Http;
 
 public class Worker : BackgroundService
 {
@@ -12,10 +13,13 @@ public class Worker : BackgroundService
 
     private readonly IConnection _connection;
 
-    public Worker(ILogger<Worker> logger, IConnection connection)
+    private static readonly HttpClient _httpClient = new();
+
+    public Worker(ILogger<Worker> logger, IConnection connection, IConfiguration configuration)
     {
         _logger = logger;
         _connection = connection;
+        _httpClient.Timeout = TimeSpan.FromMilliseconds(configuration.GetValue("HttpClientTimeout", 60_000));
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -27,13 +31,19 @@ public class Worker : BackgroundService
                 model.QueueDeclare("Search", true, false, false);
 
                 var consumer = new EventingBasicConsumer(model);
-                consumer.Received += (_, e) =>
+                consumer.Received += async (_, e) =>
                     {
                         try
                         {
-                            var q = JsonSerializer.Deserialize<string>(Encoding.UTF8.GetString(e.Body.Span));
+                            var id = JsonSerializer.Deserialize<int>(Encoding.UTF8.GetString(e.Body.Span));
 
-                            _logger.LogInformation($"q: {q}");
+                            _logger.LogInformation($"q: {id}");
+
+                            using var response = await _httpClient.GetAsync($"http://searchtargetapi1/search-product/{id}", stoppingToken);
+                            response.EnsureSuccessStatusCode();
+                            var responseBody = await response.Content.ReadAsStringAsync(stoppingToken);
+
+                            _logger.LogInformation($"result: {responseBody}");
 
                             model.BasicAck(e.DeliveryTag, false);
                         }

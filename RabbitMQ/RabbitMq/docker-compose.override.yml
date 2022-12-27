@@ -13,7 +13,7 @@ services:
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
 
-  searchtargetapi:
+  searchtargetapi1:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
     ports:

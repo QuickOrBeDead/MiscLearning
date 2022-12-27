@@ -21,11 +21,18 @@ services:
     build:
       context: .
       dockerfile: SearchHandler/Dockerfile
+    environment:
+      - HttpClientTimeout=60000
 
-
-  searchtargetapi:
-    image: ${DOCKER_REGISTRY-}searchtargetapi
+  searchtargetapi1:
+    image: ${DOCKER_REGISTRY-}searchtargetapi1
     build:
       context: .
       dockerfile: SearchTargetApi/Dockerfile
+    environment:
+    - StoreId=1
+    - Duration=40000
 
+volumes:
+  rabbitmq:
+    driver: local
