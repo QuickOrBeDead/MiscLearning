@@ -9,8 +9,14 @@ builder.Services.AddSingleton(
             var factory = new ConnectionFactory {HostName = "rabbitmq", UserName = "guest", Password = "guest"};
             return factory.CreateConnection();
         });
+builder.Services.AddCors();
 
 var app = builder.Build();
+app.UseCors(
+    b =>
+        {
+            b.AllowAnyOrigin();
+        });
 
 app.MapGet("/search-product/{id}", (int id, IConnection connection) =>
     {
