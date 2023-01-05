@@ -60,6 +60,12 @@ services:
     - StoreId=1
     - Duration=10000
 
+  notificationapi:
+    image: ${DOCKER_REGISTRY-}notificationapi
+    build:
+      context: .
+      dockerfile: NotificationApi/Dockerfile
+
 volumes:
   rabbitmq:
     driver: local
