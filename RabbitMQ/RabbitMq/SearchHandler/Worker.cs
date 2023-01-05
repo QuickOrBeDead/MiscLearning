@@ -13,12 +13,15 @@ public class Worker : BackgroundService
 
     private readonly IConnection _connection;
 
+    private readonly IConfiguration _configuration;
+
     private static readonly HttpClient _httpClient = new();
 
     public Worker(ILogger<Worker> logger, IConnection connection, IConfiguration configuration)
     {
         _logger = logger;
         _connection = connection;
+        _configuration = configuration;
         _httpClient.Timeout = TimeSpan.FromMilliseconds(configuration.GetValue("HttpClientTimeout", 60_000));
     }
 
@@ -54,6 +57,8 @@ public class Worker : BackgroundService
                             throw;
                         }
                     };
+
+                model.BasicQos(0, _configuration.GetValue("PrefetchCount", (ushort)10), false);
                 return (model ,model.BasicConsume("Search", false, consumer));
             }, stoppingToken);
 

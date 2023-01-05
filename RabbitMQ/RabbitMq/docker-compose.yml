@@ -12,17 +12,44 @@ services:
 
   searchapi:
     image: ${DOCKER_REGISTRY-}searchapi
+    depends_on:
+      - rabbitmq
     build:
       context: .
       dockerfile: SearchApi/Dockerfile
 
-  searchhandler:
-    image: ${DOCKER_REGISTRY-}searchhandler
+  searchhandler1:
+    image: ${DOCKER_REGISTRY-}searchhandler1
+    depends_on:
+      - rabbitmq
     build:
       context: .
       dockerfile: SearchHandler/Dockerfile
     environment:
       - HttpClientTimeout=60000
+      - PrefetchCount=10
+
+  searchhandler2:
+    image: ${DOCKER_REGISTRY-}searchhandler2   
+    depends_on:
+      - rabbitmq
+    build:
+      context: .
+      dockerfile: SearchHandler/Dockerfile
+    environment:
+      - HttpClientTimeout=60000
+      - PrefetchCount=10
+
+  searchhandler3:
+    image: ${DOCKER_REGISTRY-}searchhandler3
+    depends_on:
+      - rabbitmq
+    build:
+      context: .
+      dockerfile: SearchHandler/Dockerfile
+    environment:
+      - HttpClientTimeout=60000
+      - PrefetchCount=10
 
   searchtargetapi1:
     image: ${DOCKER_REGISTRY-}searchtargetapi1
@@ -31,7 +58,7 @@ services:
       dockerfile: SearchTargetApi/Dockerfile
     environment:
     - StoreId=1
-    - Duration=40000
+    - Duration=10000
 
 volumes:
   rabbitmq:
