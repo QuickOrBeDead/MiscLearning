@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JQuery Queue</title>
+    <style>
+        #images {
+            padding-top: 8px;
+        }
+    </style>
+</head>
+<body>
+    <button id="start">Start</button>
+    <div id="images"></div>
+    <script src="js/jquery-1.12.4.min.js"></script>
+    <script>
+       $(function(){
+            var imageQueue = $({});
+
+            var convertToBase64 = function(data, callback) {
+                var reader = new FileReader();
+                reader.onload = function () {
+                    callback(reader.result.split(",", 2)[1]);
+                };
+                reader.readAsDataURL(new Blob([data]));
+            };
+
+            var downloadPdfBase64 = function (url, onLoad) {
+                var xhr = new XMLHttpRequest();
+                xhr.open("GET", url, true);
+                xhr.responseType = "arraybuffer";
+                xhr.addEventListener("load",
+                    function () {
+                        if (xhr.status === 200) {
+                            convertToBase64(new Uint8Array(xhr.response),
+                                function (d) {
+                                    setTimeout(function() { onLoad(d); }, 1000);
+                                });
+                        } else {
+                            onLoad();
+                        }
+                    });
+                xhr.send();
+            };
+
+            var sendToImageQueue = function (url) {
+                imageQueue.queue(function (next) {
+                    downloadPdfBase64(url,
+                        function (base64) {
+                            $("#images").append(`<img src="data:image/png;base64,${base64}" />`);
+
+                             next();
+                        });    
+                });
+            };
+
+            var start = function() {
+                for (let i = 1; i < 10; i++) { 
+                    sendToImageQueue(`images/${i}.png`);
+                }
+            };
+
+            $("#start").click(function() {
+                $("#images").html("");
+
+                start();
+            });
+       });
+    </script>
+</body>
+</html>
