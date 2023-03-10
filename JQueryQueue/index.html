@@ -12,6 +12,7 @@
     </style>
 </head>
 <body>
+    <input type="checkbox" id="queueEnabled" name="queueEnabled" checked><label for="queueEnabled"> Is Queue Enabled</label><br>
     <button id="start">Start</button>
     <div id="images"></div>
     <script src="js/jquery-1.12.4.min.js"></script>
@@ -36,7 +37,7 @@
                         if (xhr.status === 200) {
                             convertToBase64(new Uint8Array(xhr.response),
                                 function (d) {
-                                    setTimeout(function() { onLoad(d); }, 1000);
+                                    setTimeout(function() { onLoad(d); }, Math.floor(Math.random() * 1200) + 300);
                                 });
                         } else {
                             onLoad();
@@ -46,14 +47,21 @@
             };
 
             var sendToImageQueue = function (url) {
-                imageQueue.queue(function (next) {
+                if ($("#queueEnabled").is(":checked")) {
+                    imageQueue.queue(function (next) {
+                        downloadPdfBase64(url,
+                            function (base64) {
+                                $("#images").append(`<img src="data:image/png;base64,${base64}" />`);
+
+                                next();
+                            });    
+                    });
+                } else {
                     downloadPdfBase64(url,
                         function (base64) {
                             $("#images").append(`<img src="data:image/png;base64,${base64}" />`);
-
-                             next();
-                        });    
-                });
+                        }); 
+                }
             };
 
             var start = function() {
@@ -64,7 +72,7 @@
 
             $("#start").click(function() {
                 $("#images").html("");
-
+     
                 start();
             });
        });
