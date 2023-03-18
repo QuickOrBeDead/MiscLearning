@@ -1,0 +1,31 @@
+﻿<Window x:Class="HtmlViewerApp.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:HtmlViewerApp"
+        mc:Ignorable="d"
+        Title="Html Viewer" Height="450" Width="800" WindowState="Maximized">
+    <DockPanel>
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="_File">
+                <MenuItem Header="_Open Folder" Click="OpenFolderMenuItem_OnClick" />
+            </MenuItem>
+        </Menu>
+        <Grid DockPanel.Dock="Bottom" Visibility="Hidden" Name="HtmlContainer">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition></ColumnDefinition>
+                    <ColumnDefinition></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="35px" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <Button Grid.Column="0" Grid.Row="0" Name="Previous" Click="Previous_Click">Previous</Button>
+                <Button Grid.Column="1" Grid.Row="0" Name="Next" Click="Next_Click">Next</Button>
+                <WebBrowser Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" Name="WebBrowser"></WebBrowser>
+            </Grid>
+        </Grid>
+    </DockPanel>
+</Window>
