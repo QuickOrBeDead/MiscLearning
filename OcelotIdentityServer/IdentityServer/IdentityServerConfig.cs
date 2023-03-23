@@ -1,7 +1,6 @@
 ﻿namespace IdentityServer;
 
 using IdentityServer4.Models;
-using IdentityServer4.Test;
 
 public static class IdentityServerConfig
 {
@@ -31,19 +30,4 @@ public static class IdentityServerConfig
             {
                 new ApiResource("bookAPI", "Book API")
             };
-
-    public static IEnumerable<IdentityResource> IdentityResources =>
-        new[]
-            {
-                new IdentityResources.OpenId(),
-                new IdentityResources.Profile(),
-                new IdentityResources.Address(),
-                new IdentityResources.Email(),
-                new IdentityResource(
-                    "roles",
-                    "Your role(s)",
-                    new List<string> { "role" })
-            };
-
-    public static List<TestUser> TestUsers => new();
 }

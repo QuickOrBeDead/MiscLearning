@@ -6,9 +6,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddIdentityServer()
     .AddInMemoryClients(IdentityServerConfig.Clients)
     .AddInMemoryApiScopes(IdentityServerConfig.ApiScopes)
-    .AddInMemoryIdentityResources(IdentityServerConfig.IdentityResources)
     .AddInMemoryApiResources(IdentityServerConfig.ApiResources)
-    .AddTestUsers(IdentityServerConfig.TestUsers)
     .AddDeveloperSigningCredential();
 
 var app = builder.Build();
