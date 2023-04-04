@@ -6,10 +6,11 @@ using Ocelot.Middleware;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Configuration.AddJsonFile("ocelot.json");
 builder.Services.AddAuthentication()
     .AddJwtBearer(x =>
         {
-            x.Authority = "http://localhost:5100";
+            x.Authority = Constants.Constants.Endpoints.IdentityServer;
             x.RequireHttpsMetadata = false;
             x.TokenValidationParameters = new TokenValidationParameters
                                               {

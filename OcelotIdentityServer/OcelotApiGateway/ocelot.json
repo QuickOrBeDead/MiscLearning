@@ -12,8 +12,13 @@
       "UpstreamPathTemplate": "/books",
       "UpstreamHttpMethod": [ "GET", "POST" ],
       "AuthenticationOptions": {
-        "AuthenticationProviderKey": "bearer",
-        "AllowedScopes": []
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": [
+          "bookAPI"
+        ]
+      },
+      "RouteClaimsRequirement": {
+        "client_id": "bookClient"
       }
     }
   ]

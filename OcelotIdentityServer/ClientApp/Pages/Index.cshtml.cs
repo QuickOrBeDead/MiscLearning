@@ -36,7 +36,7 @@ public class IndexModel : PageModel
             throw new InvalidOperationException(tokenResponse.Error);
         }
 
-        var request = new HttpRequestMessage(HttpMethod.Get, new Uri(new Uri(Constants.Endpoints.BooksApi), "/books"));
+        var request = new HttpRequestMessage(HttpMethod.Get, new Uri(new Uri(Constants.Endpoints.ApiGateway), "/books"));
         request.SetBearerToken(tokenResponse.AccessToken);
         var booksResponse = await _httpClient.SendAsync(request);
         booksResponse.EnsureSuccessStatusCode();
