@@ -178,7 +178,7 @@ public class RabbitMqGenericMessageQueueConsumerService : IMessageQueueConsumerS
                                     if (IsTryCountExceeded(deadLetteredCount))
                                     {
                                         _channel.BasicAck(e.DeliveryTag, false);
-                                        return;
+                                        throw;
                                     }
 
                                     _channel.BasicNack(e.DeliveryTag, false, false);
