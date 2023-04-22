@@ -11,6 +11,7 @@ public interface IOrderService
 
 public sealed class OrderService : IOrderService
 {
+    private static int _orderId = 0;
     private readonly IMessageQueuePublisherService _messageQueuePublisherService;
 
     public OrderService(IMessageQueuePublisherService messageQueuePublisherService)
@@ -20,9 +21,14 @@ public sealed class OrderService : IOrderService
 
     public int CreateOrder()
     {
-        var @event = new OrderCreatedEvent(1);
+        var @event = new OrderCreatedEvent(GetNewOrderId());
         _messageQueuePublisherService.PublishMessage(@event);
 
         return @event.OrderId;
+    }
+
+    private static int GetNewOrderId()
+    {
+        return ++_orderId;
     }
 }
