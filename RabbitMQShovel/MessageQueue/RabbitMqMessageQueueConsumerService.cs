@@ -198,7 +198,8 @@ public class RabbitMqGenericMessageQueueConsumerService : IMessageQueueConsumerS
 
     private static int GetDeadLetteredCount(BasicDeliverEventArgs e)
     {
-        if (e.BasicProperties.Headers.TryGetValue("x-death", out var deathHeaders)
+        if (e.BasicProperties.Headers != null
+            && e.BasicProperties.Headers.TryGetValue("x-death", out var deathHeaders)
             && deathHeaders is IList<object> {Count: > 0} deathHeadersList
             && deathHeadersList[0] is Dictionary<string, object> deathHeadersDictionary
             && deathHeadersDictionary.TryGetValue("count", out var countValue) && countValue is long count)
