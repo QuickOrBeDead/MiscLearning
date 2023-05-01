@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Memoization", "Memoization\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tabulation", "Tabulation\Tabulation.csproj", "{A988B36C-811A-495E-B479-07E32A904301}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LongestIncreasingSubsequence", "LongestIncreasingSubsequence\LongestIncreasingSubsequence.csproj", "{4F629A1C-14E5-44B6-87C2-EE7C9A90F33D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{A988B36C-811A-495E-B479-07E32A904301}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A988B36C-811A-495E-B479-07E32A904301}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A988B36C-811A-495E-B479-07E32A904301}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4F629A1C-14E5-44B6-87C2-EE7C9A90F33D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4F629A1C-14E5-44B6-87C2-EE7C9A90F33D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4F629A1C-14E5-44B6-87C2-EE7C9A90F33D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4F629A1C-14E5-44B6-87C2-EE7C9A90F33D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
