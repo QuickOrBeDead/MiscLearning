@@ -1,0 +1,19 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "process",
+			"label": "dotnet: build",
+			"command": "dotnet",
+			"args": [
+				"build",
+                "${workspaceFolder}/DynamicProgramming/CoinChangeProblem/CoinChangeProblem.csproj"
+			],
+			"group": "build",
+			"problemMatcher": [
+				"$msCompile"
+			],
+			"detail": "dotnet template build task"
+		}
+	]
+}

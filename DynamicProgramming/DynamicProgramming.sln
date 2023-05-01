@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tabulation", "Tabulation\Ta
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LongestIncreasingSubsequence", "LongestIncreasingSubsequence\LongestIncreasingSubsequence.csproj", "{4F629A1C-14E5-44B6-87C2-EE7C9A90F33D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoinChangeProblem", "CoinChangeProblem\CoinChangeProblem.csproj", "{105CDA90-C350-4516-9290-112E0C54D70C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +32,9 @@ Global
 		{4F629A1C-14E5-44B6-87C2-EE7C9A90F33D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4F629A1C-14E5-44B6-87C2-EE7C9A90F33D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4F629A1C-14E5-44B6-87C2-EE7C9A90F33D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{105CDA90-C350-4516-9290-112E0C54D70C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{105CDA90-C350-4516-9290-112E0C54D70C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{105CDA90-C350-4516-9290-112E0C54D70C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{105CDA90-C350-4516-9290-112E0C54D70C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
