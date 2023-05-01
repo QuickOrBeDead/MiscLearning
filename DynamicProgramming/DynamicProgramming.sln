@@ -5,6 +5,8 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Memoization", "Memoization\Memoization.csproj", "{61E03E24-A858-454A-8978-18A6F5B29376}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tabulation", "Tabulation\Tabulation.csproj", "{A988B36C-811A-495E-B479-07E32A904301}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{61E03E24-A858-454A-8978-18A6F5B29376}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{61E03E24-A858-454A-8978-18A6F5B29376}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{61E03E24-A858-454A-8978-18A6F5B29376}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A988B36C-811A-495E-B479-07E32A904301}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A988B36C-811A-495E-B479-07E32A904301}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A988B36C-811A-495E-B479-07E32A904301}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A988B36C-811A-495E-B479-07E32A904301}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
