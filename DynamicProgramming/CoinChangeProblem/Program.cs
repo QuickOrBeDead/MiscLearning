@@ -1,57 +1,32 @@
-﻿using System.Collections.Generic;
+﻿Console.WriteLine(GetWays(4, new List<long> { 1, 2, 3 }, 0, new long?[3, 5]));
+Console.ReadLine();
 
-Console.WriteLine(getWays(4, new List<long> { 1, 2, 3 }));
-
-
-long getWays(int n, List<long> c) 
+static long GetWays(long n, IReadOnlyList<long> c, int j, long?[,] lookup)
 {
-    c.Sort((a, b) => a.CompareTo(b));
-
-    var dp = new long[n + 1];
-    dp[0] = 1;
-
-    var len = c.Count;
-    for (var i = 0; i < len; i++) 
+    var r = lookup[j, n];
+    if (r.HasValue)
     {
-        long v = c[i];
-
-        for (var j = v; j <= n; j++) 
-        {
-            dp[j] += dp[j - v];
-        }
+        return r.Value;
     }
 
-    return dp[n];
-}
-
-/*
-long getWays(long n, List<long> c, int j, Dictionary<long, long> lookup)
-{
-    if (lookup.TryGetValue(n, out var b)) {
-        return b;
+    if (n == 0)
+    {
+        return 1;
     }
 
     long result = 0;
-    var len = c.Count;
-    for (var i = j; i < len; i++) 
+    for (var i = j; i < c.Count; i++)
     {
-        long v = c[i];
-        if (v > n) 
+        var v = c[i];
+        if (v > n)
         {
             continue;
         }
-        
-        if (v == n) 
-        {
-            result++;
-            break;
-        } 
-        else 
-        {
-            result += getWays(n - v, c, i, lookup);
-        }
+
+        result += GetWays(n - v, c, i, lookup);
     }
-    
-    return  (lookup[n] = result);
+
+    lookup[j, n] = result;
+
+    return result;
 }
-*/
