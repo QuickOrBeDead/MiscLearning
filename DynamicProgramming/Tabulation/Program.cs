@@ -1,5 +1,5 @@
 ﻿const int q = 8;
-Console.WriteLine($"f({8}) = {Fibonacci(8)}");
+Console.WriteLine($"f({8}) = {Fibonacci(q)}");
 
 int Fibonacci(int n) 
 {
