@@ -2,8 +2,8 @@
 
 using LongestCommonSubsequences;
 
-var s1 = "XMJYAUZ";
-var s2 = "MZJAWXU";
+var s1 = "XMJYAUZACDBFG";
+var s2 = "MZJAWXUADGTMG";
 
 Calculate(s1, s2, nameof(DynamicProgrammingLCS), () => DynamicProgrammingLCS.FindString(s1, s2));
 Calculate(s1, s2, nameof(NaiveLCS), () => NaiveLCS.FindString(s1, s2));

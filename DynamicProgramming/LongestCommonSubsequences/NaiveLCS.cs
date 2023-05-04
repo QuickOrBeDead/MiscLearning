@@ -9,35 +9,21 @@ public static class NaiveLCS
             return string.Empty;
         }
 
-        var seq1 = FindSubsequences(s1).OrderByDescending(x => x.Length).ToList();
-        var seq2 = FindSubsequences(s2);
-        
-        for (int i = 0; i < seq1.Count; i++)
+        var n = s1.Length;
+        var m = s2.Length;
+
+        if (m == 0 || n == 0)
         {
-            var s = seq1[i];
-            if (seq2.Contains(s)) 
-            {
-                return s;
-            }
+            return string.Empty;
         }
 
-        return string.Empty;
-    }
-
-    private static IList<string> FindSubsequences(string s, string seq = "", int i = 0) 
-    {
-        var result = new List<string>();
-        for (; i < s.Length; i++)
+        if (s1[n - 1] == s2[m - 1])
         {
-            var newSeq = seq + s[i];
-            result.Add(newSeq);
-
-            if (i < s.Length - 1)
-            {
-                result.AddRange(FindSubsequences(s, newSeq, i + 1));
-            }
+            return FindString(s1[..(n - 1)], s2[..(m - 1)]) + s1[n - 1];
         }
 
-        return result;
+        var lcs1 = FindString(s1[..(n - 1)], s2[..m]);
+        var lcs2 = FindString(s1[..n], s2[..(m - 1)]);
+        return lcs1.Length > lcs2.Length ? lcs1 : lcs2;
     }
 }
