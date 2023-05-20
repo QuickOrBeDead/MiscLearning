@@ -1,0 +1,74 @@
+version: '3.4'
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    restart: always
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    volumes:
+      - rabbitmq:/var/lib/rabbitmq
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.2.0
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - elasticsearch:/usr/share/elasticsearch/data
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - ELASTIC_PASSWORD=Password1
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+
+  pdfworkerservice:
+    image: ${DOCKER_REGISTRY-}pdfworkerservice
+    restart: always
+    depends_on:
+      - rabbitmq
+      - elasticsearch
+    build:
+      context: .
+      dockerfile: PdfWorker/Dockerfile
+
+  emailworkerservice:
+    image: ${DOCKER_REGISTRY-}emailworkerservice
+    restart: always
+    depends_on:
+      - rabbitmq
+      - elasticsearch
+    build:
+      context: .
+      dockerfile: EmailWorker/Dockerfile
+
+  smsworkerservice:
+    image: ${DOCKER_REGISTRY-}smsworkerservice
+    restart: always
+    depends_on:
+      - rabbitmq
+      - elasticsearch
+    build:
+      context: .
+      dockerfile: SmsWorker/Dockerfile
+
+  webui:
+    image: ${DOCKER_REGISTRY-}webui
+    restart: always
+    depends_on:
+      - rabbitmq
+      - elasticsearch
+    build:
+      context: .
+      dockerfile: WebUI/Dockerfile 
+
+volumes:
+  rabbitmq:
+    driver: local
+  elasticsearch:
+    driver: local

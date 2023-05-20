@@ -1,0 +1,11 @@
+
+version: '3.4'
+
+services:
+  pdfworker:
+    image: pdfworker
+    build:
+      context: .
+      dockerfile: PdfWorker/Dockerfile
+    volumes:
+      - ~/.vsdbg:/remote_debugger:rw
