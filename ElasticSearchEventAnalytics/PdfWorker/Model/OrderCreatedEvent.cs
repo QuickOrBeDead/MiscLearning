@@ -1,12 +1,12 @@
-namespace EmailWorker.Model;
+namespace PdfWorker.Model;
 
-public sealed class PdfCreatedEvent
+public sealed class OrderCreatedEvent
 {
     public Guid Id { get; set; }
 
     public DateTime CreateDate { get; set; }
 
-    public PdfCreatedEvent()
+    public OrderCreatedEvent()
     {
         Id = Guid.NewGuid();
         CreateDate = DateTime.Now;

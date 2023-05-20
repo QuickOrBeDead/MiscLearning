@@ -35,12 +35,10 @@ public sealed class Worker : BackgroundService
                 {
                     try
                     {
-                        using var channel = _rabbitMqConnection.CreateModel();
-                        channel.ExchangeDeclare("ElasticSearchEventAnalytics.PdfCreated", "fanout", false, false, null);
-                       
-                        var body = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(new PdfCreatedEvent()));
+                        var orderCreateEvent = JsonSerializer.Deserialize<OrderCreatedEvent>(Encoding.UTF8.GetString(e.Body.Span));
+                        
+                        PublishPdfCreatedEvent(orderCreateEvent.Id);
 
-                        channel.BasicPublish(exchange: "ElasticSearchEventAnalytics.OrderCreated", routingKey: string.Empty, basicProperties: null, body: body);
                         _consumerChannel.BasicAck(e.DeliveryTag, false);
                     }
                     catch (Exception)
@@ -53,6 +51,17 @@ public sealed class Worker : BackgroundService
         }
 
         return Task.CompletedTask;
+    }
+
+    private void PublishPdfCreatedEvent(Guid id)
+    {
+        using var channel = _rabbitMqConnection.CreateModel();
+        channel.ExchangeDeclare("ElasticSearchEventAnalytics.PdfCreated", "fanout", false, false, null);
+
+        var body = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(new PdfCreatedEvent { Id = id }));
+
+        channel.BasicPublish(exchange: "ElasticSearchEventAnalytics.OrderCreated", routingKey: string.Empty, basicProperties: null, body: body);
+
     }
 
     public override async Task StopAsync(CancellationToken cancellationToken)

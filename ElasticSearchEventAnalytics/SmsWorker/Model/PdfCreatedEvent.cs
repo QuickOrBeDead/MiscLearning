@@ -1,4 +1,4 @@
-namespace EmailWorker.Model;
+namespace SmsWorker.Model;
 
 public sealed class PdfCreatedEvent
 {
