@@ -5,8 +5,8 @@ services:
     image: rabbitmq:3-management-alpine
     restart: always
     ports:
-      - "15672:15672"
-      - "5672:5672"
+      - "15673:15672"
+      - "5673:5672"
     volumes:
       - rabbitmq:/var/lib/rabbitmq
 
@@ -60,6 +60,8 @@ services:
   webui:
     image: ${DOCKER_REGISTRY-}webui
     restart: always
+    ports:
+      - "8090:80"
     depends_on:
       - rabbitmq
       - elasticsearch
