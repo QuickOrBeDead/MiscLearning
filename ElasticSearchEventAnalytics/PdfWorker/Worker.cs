@@ -1,31 +1,46 @@
 using Microsoft.Extensions.Hosting;
 
+using System.Text;
+using System.Text.Json;
+
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
+
+using PdfWorker.Model;
 
 namespace PdfWorker;
 
 public sealed class Worker : BackgroundService
 {
     private readonly IModel _consumerChannel;
+    private readonly IConnection _rabbitMqConnection;
     private string? _consumerTag;
 
-    public Worker(IModel consumerChannel)
+    public Worker(IModel consumerChannel, IConnection rabbitMqConnection)
     {
-        _consumerChannel = consumerChannel;    
+        _consumerChannel = consumerChannel;
+        _rabbitMqConnection = rabbitMqConnection;
     }
 
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
         if (!stoppingToken.IsCancellationRequested)
         {
-            _consumerChannel.QueueDeclare(queue: "ElasticSearchEventAnalytics.PdfCreated", durable: false, exclusive: false, autoDelete: false, arguments: null);
+            _consumerChannel.ExchangeDeclare("ElasticSearchEventAnalytics.OrderCreated", "fanout", false, false, null);
+            _consumerChannel.QueueDeclare(queue: "ElasticSearchEventAnalytics.Pdf", durable: false, exclusive: false, autoDelete: false, arguments: null);
+            _consumerChannel.QueueBind("ElasticSearchEventAnalytics.Pdf", "ElasticSearchEventAnalytics.OrderCreated", string.Empty);
 
             var consumer = new EventingBasicConsumer(_consumerChannel);
             consumer.Received += (_, e) =>
                 {
                     try
                     {
+                        using var channel = _rabbitMqConnection.CreateModel();
+                        channel.ExchangeDeclare("ElasticSearchEventAnalytics.PdfCreated", "fanout", false, false, null);
+                       
+                        var body = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(new PdfCreatedEvent()));
+
+                        channel.BasicPublish(exchange: "ElasticSearchEventAnalytics.OrderCreated", routingKey: string.Empty, basicProperties: null, body: body);
                         _consumerChannel.BasicAck(e.DeliveryTag, false);
                     }
                     catch (Exception)
@@ -34,7 +49,7 @@ public sealed class Worker : BackgroundService
                     }
                 };
             _consumerChannel.BasicQos(0, 1, false);
-            _consumerTag = _consumerChannel.BasicConsume("ElasticSearchEventAnalytics.PdfCreated", false, consumer);
+            _consumerTag = _consumerChannel.BasicConsume("ElasticSearchEventAnalytics.Pdf", false, consumer);
         }
 
         return Task.CompletedTask;

@@ -19,7 +19,9 @@ public sealed class Worker : BackgroundService
     {
         if (!stoppingToken.IsCancellationRequested)
         {
-            _consumerChannel.QueueDeclare(queue: "ElasticSearchEventAnalytics.OrderCreated", durable: false, exclusive: false, autoDelete: false, arguments: null);
+            _consumerChannel.ExchangeDeclare("ElasticSearchEventAnalytics.PdfCreated", "fanout", false, false, null);
+            _consumerChannel.QueueDeclare(queue: "ElasticSearchEventAnalytics.EMail", durable: false, exclusive: false, autoDelete: false, arguments: null);
+            _consumerChannel.QueueBind("ElasticSearchEventAnalytics.EMail", "ElasticSearchEventAnalytics.PdfCreated", string.Empty);
 
             var consumer = new EventingBasicConsumer(_consumerChannel);
             consumer.Received += (_, e) =>
@@ -34,7 +36,7 @@ public sealed class Worker : BackgroundService
                     }
                 };
             _consumerChannel.BasicQos(0, 1, false);
-            _consumerTag = _consumerChannel.BasicConsume("ElasticSearchEventAnalytics.OrderCreated", false, consumer);
+            _consumerTag = _consumerChannel.BasicConsume("ElasticSearchEventAnalytics.EMail", false, consumer);
         }
 
         return Task.CompletedTask;

@@ -27,10 +27,10 @@ public class IndexModel : PageModel
     {
         using var channel = _rabbitMqConnection.CreateModel();
 
-        channel.QueueDeclare(queue: "ElasticSearchEventAnalytics.OrderCreated", durable: false, exclusive: false, autoDelete: false, arguments: null);
+        channel.ExchangeDeclare("ElasticSearchEventAnalytics.OrderCreated", "fanout", false, false, null);
 
         var body = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(new OrderCreatedEvent()));
 
-        channel.BasicPublish(exchange: string.Empty, routingKey: "ElasticSearchEventAnalytics.OrderCreated", basicProperties: null, body: body);
+        channel.BasicPublish(exchange: "ElasticSearchEventAnalytics.OrderCreated", routingKey: string.Empty, basicProperties: null, body: body);
     }
 }
