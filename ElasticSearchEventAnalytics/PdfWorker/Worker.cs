@@ -7,6 +7,7 @@ using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
 using PdfWorker.Model;
+using Nest;
 
 namespace PdfWorker;
 
@@ -14,12 +15,14 @@ public sealed class Worker : BackgroundService
 {
     private readonly IModel _consumerChannel;
     private readonly IConnection _rabbitMqConnection;
+    private readonly IElasticClient _elasticClient;
     private string? _consumerTag;
 
-    public Worker(IModel consumerChannel, IConnection rabbitMqConnection)
+    public Worker(IModel consumerChannel, IConnection rabbitMqConnection,  IElasticClient elasticClient)
     {
         _consumerChannel = consumerChannel;
         _rabbitMqConnection = rabbitMqConnection;
+        _elasticClient = elasticClient;
     }
 
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
@@ -40,6 +43,13 @@ public sealed class Worker : BackgroundService
                         PublishPdfCreatedEvent(orderCreateEvent.Id);
 
                         _consumerChannel.BasicAck(e.DeliveryTag, false);
+
+                        var eventLog = new PdfCreatedEventLog
+                                        {
+                                            DocumentId = $"2023-05-24_{Guid.NewGuid()}",
+                                            EventId = Guid.NewGuid()
+                                        };
+                        _elasticClient.Index(eventLog, x => x.Index($"eventlog-{eventLog.CreateDate:yyyy-MM-dd}"));
                     }
                     catch (Exception)
                     {
@@ -61,7 +71,6 @@ public sealed class Worker : BackgroundService
         var body = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(new PdfCreatedEvent { Id = id }));
 
         channel.BasicPublish(exchange: "ElasticSearchEventAnalytics.OrderCreated", routingKey: string.Empty, basicProperties: null, body: body);
-
     }
 
     public override async Task StopAsync(CancellationToken cancellationToken)
