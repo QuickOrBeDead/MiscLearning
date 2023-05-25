@@ -7,7 +7,6 @@ using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
 using PdfWorker.Model;
-using Nest;
 
 namespace PdfWorker;
 
@@ -15,14 +14,12 @@ public sealed class Worker : BackgroundService
 {
     private readonly IModel _consumerChannel;
     private readonly IConnection _rabbitMqConnection;
-    private readonly IElasticClient _elasticClient;
     private string? _consumerTag;
 
-    public Worker(IModel consumerChannel, IConnection rabbitMqConnection,  IElasticClient elasticClient)
+    public Worker(IModel consumerChannel, IConnection rabbitMqConnection)
     {
         _consumerChannel = consumerChannel;
         _rabbitMqConnection = rabbitMqConnection;
-        _elasticClient = elasticClient;
     }
 
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
@@ -41,15 +38,9 @@ public sealed class Worker : BackgroundService
                         var orderCreateEvent = JsonSerializer.Deserialize<OrderCreatedEvent>(Encoding.UTF8.GetString(e.Body.Span));
                         
                         PublishPdfCreatedEvent(orderCreateEvent.Id);
+                        PublishPdfCreatedEventLog(orderCreateEvent.Id);
 
                         _consumerChannel.BasicAck(e.DeliveryTag, false);
-
-                        var eventLog = new PdfCreatedEventLog
-                                        {
-                                            DocumentId = $"2023-05-24_{Guid.NewGuid()}",
-                                            EventId = Guid.NewGuid()
-                                        };
-                        _elasticClient.Index(eventLog, x => x.Index($"eventlog-{eventLog.CreateDate:yyyy-MM-dd}"));
                     }
                     catch (Exception)
                     {
@@ -72,6 +63,22 @@ public sealed class Worker : BackgroundService
 
         channel.BasicPublish(exchange: "ElasticSearchEventAnalytics.OrderCreated", routingKey: string.Empty, basicProperties: null, body: body);
     }
+
+    private void PublishPdfCreatedEventLog(Guid id)
+    {
+        using var channel = _rabbitMqConnection.CreateModel();
+        channel.QueueDeclare("ElasticSearchEventAnalytics.EventLog", false, false, false, null);
+
+        var body = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(new PdfCreatedEventLog
+                                                                    {
+                                                                        DocumentId = $"2023-05-24_{Guid.NewGuid()}",
+                                                                        EventId = id
+                                                                    }));
+
+        channel.BasicPublish(exchange: string.Empty, routingKey: "ElasticSearchEventAnalytics.EventLog", basicProperties: null, body: body);
+    }
+
+
 
     public override async Task StopAsync(CancellationToken cancellationToken)
     {
