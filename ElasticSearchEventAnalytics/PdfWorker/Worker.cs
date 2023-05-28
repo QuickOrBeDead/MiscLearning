@@ -37,8 +37,11 @@ public sealed class Worker : BackgroundService
                     {
                         var orderCreateEvent = JsonSerializer.Deserialize<OrderCreatedEvent>(Encoding.UTF8.GetString(e.Body.Span));
                         
-                        PublishPdfCreatedEvent(orderCreateEvent.Id);
-                        PublishPdfCreatedEventLog(orderCreateEvent.Id);
+                        if (orderCreateEvent != null)
+                        {
+                            PublishPdfCreatedEvent(orderCreateEvent.Id);
+                            PublishPdfCreatedEventLog(orderCreateEvent.Id);
+                        }
 
                         _consumerChannel.BasicAck(e.DeliveryTag, false);
                     }
@@ -61,7 +64,7 @@ public sealed class Worker : BackgroundService
 
         var body = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(new PdfCreatedEvent { Id = id }));
 
-        channel.BasicPublish(exchange: "ElasticSearchEventAnalytics.OrderCreated", routingKey: string.Empty, basicProperties: null, body: body);
+        channel.BasicPublish(exchange: "ElasticSearchEventAnalytics.PdfCreated", routingKey: string.Empty, basicProperties: null, body: body);
     }
 
     private void PublishPdfCreatedEventLog(Guid id)
