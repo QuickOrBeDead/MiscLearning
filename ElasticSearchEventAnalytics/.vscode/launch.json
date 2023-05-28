@@ -1,6 +1,5 @@
 {
     "configurations": [
-        
         {
             "name": "Docker .NET Attach (Preview)",
             "type": "docker",
@@ -8,6 +7,31 @@
             "platform": "netCore",
             "sourceFileMap": {
                 "/src": "${workspaceFolder}"
+            }
+        },
+        {
+            "name": ".NET Core Launch (console)",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/EmailWorker/bin/Debug/net7.0/EmailWorker.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/EmailWorker",
+            "console": "internalConsole",
+            "stopAtEntry": false
+        },
+        {
+            "name": ".NET Core Attach",
+            "type": "coreclr",
+            "request": "attach"
+        },
+        {
+            "name": "Docker .NET Launch",
+            "type": "docker",
+            "request": "launch",
+            "preLaunchTask": "docker-run: debug",
+            "netCore": {
+                "appProject": "${workspaceFolder}/EventLogWorker/EventLogWorker.csproj"
             }
         }
     ]

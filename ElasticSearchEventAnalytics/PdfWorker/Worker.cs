@@ -92,8 +92,6 @@ public sealed class Worker : BackgroundService
         channel.BasicPublish(exchange: string.Empty, routingKey: "ElasticSearchEventAnalytics.EventLog", basicProperties: null, body: body);
     }
 
-
-
     public override async Task StopAsync(CancellationToken cancellationToken)
     {
         if (_consumerTag != null)

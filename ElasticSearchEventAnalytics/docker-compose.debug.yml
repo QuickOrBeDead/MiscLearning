@@ -44,7 +44,6 @@ services:
     restart: always
     depends_on:
       - rabbitmq
-      - elasticsearch
     build:
       context: .
       dockerfile: PdfWorker/Dockerfile
@@ -56,7 +55,6 @@ services:
     restart: always
     depends_on:
       - rabbitmq
-      - elasticsearch
     build:
       context: .
       dockerfile: EmailWorker/Dockerfile
@@ -68,11 +66,22 @@ services:
     restart: always
     depends_on:
       - rabbitmq
-      - elasticsearch
     build:
       context: .
       dockerfile: SmsWorker/Dockerfile
     volumes:
+      - ~/.vsdbg:/remote_debugger:rw
+
+  eventlogworker:
+    image: eventlogworker
+    restart: always
+    depends_on:
+      - rabbitmq
+      - elasticsearch
+    build:
+      context: .
+      dockerfile: EventLogWorker/Dockerfile
+  volumes:
       - ~/.vsdbg:/remote_debugger:rw
 
   webui:
@@ -82,7 +91,6 @@ services:
       - "8090:80"
     depends_on:
       - rabbitmq
-      - elasticsearch
     build:
       context: .
       dockerfile: WebUI/Dockerfile 
