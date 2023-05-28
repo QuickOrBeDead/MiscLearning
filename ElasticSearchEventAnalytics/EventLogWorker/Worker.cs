@@ -8,14 +8,18 @@ using System.Text.Json;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
+using Nest;
+
 public class Worker : BackgroundService
 {
     private readonly IModel _consumerChannel;
+    private readonly IElasticClient _elasticClient;
     private string? _consumerTag;
 
-    public Worker(IModel consumerChannel)
+    public Worker(IModel consumerChannel, IElasticClient elasticClient)
     {
         _consumerChannel = consumerChannel;
+        _elasticClient = elasticClient;
     }
 
        protected override Task ExecuteAsync(CancellationToken stoppingToken)
@@ -33,6 +37,7 @@ public class Worker : BackgroundService
                         
                         if (eventLog != null)
                         {
+                            _elasticClient.Index(eventLog, x => x.Index($"eventlog-{eventLog.CreateDate:yyyy-MM-dd}"));
                         }
 
                         _consumerChannel.BasicAck(e.DeliveryTag, false);
