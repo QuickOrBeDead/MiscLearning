@@ -1,12 +1,13 @@
 {
     "configurations": [
+        
         {
-            "name": "Docker .NET Launch",
+            "name": "Docker .NET Attach (Preview)",
             "type": "docker",
-            "request": "launch",
-            "preLaunchTask": "docker-run: debug",
-            "netCore": {
-                "appProject": "${workspaceFolder}/WebUI/WebUI.csproj"
+            "request": "attach",
+            "platform": "netCore",
+            "sourceFileMap": {
+                "/src": "${workspaceFolder}"
             }
         }
     ]

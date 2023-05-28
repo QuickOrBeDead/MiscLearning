@@ -2,10 +2,97 @@
 version: '3.4'
 
 services:
-  pdfworker:
-    image: pdfworker
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    restart: always
+    ports:
+      - "15673:15672"
+      - "5673:5672"
+    volumes:
+      - rabbitmq:/var/lib/rabbitmq
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.6.0
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - elasticsearch:/usr/share/elasticsearch/data
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - xpack.security.enabled=false
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.6.0
+    volumes:
+      - kibana:/usr/share/kibana/data
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+
+  pdfworkerservice:
+    image: pdfworkerservice
+    restart: always
+    depends_on:
+      - rabbitmq
+      - elasticsearch
     build:
       context: .
       dockerfile: PdfWorker/Dockerfile
     volumes:
       - ~/.vsdbg:/remote_debugger:rw
+
+  emailworkerservice:
+    image: emailworkerservice
+    restart: always
+    depends_on:
+      - rabbitmq
+      - elasticsearch
+    build:
+      context: .
+      dockerfile: EmailWorker/Dockerfile
+    volumes:
+      - ~/.vsdbg:/remote_debugger:rw
+
+  smsworkerservice:
+    image: smsworkerservice
+    restart: always
+    depends_on:
+      - rabbitmq
+      - elasticsearch
+    build:
+      context: .
+      dockerfile: SmsWorker/Dockerfile
+    volumes:
+      - ~/.vsdbg:/remote_debugger:rw
+
+  webui:
+    image: webui
+    restart: always
+    ports:
+      - "8090:80"
+    depends_on:
+      - rabbitmq
+      - elasticsearch
+    build:
+      context: .
+      dockerfile: WebUI/Dockerfile 
+    volumes:
+      - ~/.vsdbg:/remote_debugger:rw
+
+volumes:
+  rabbitmq:
+    driver: local
+  elasticsearch:
+    driver: local
+  kibana:
+    driver: local
