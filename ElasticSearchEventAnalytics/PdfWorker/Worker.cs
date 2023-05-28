@@ -35,12 +35,14 @@ public sealed class Worker : BackgroundService
                 {
                     try
                     {
+                        Thread.Sleep(5_000);
+
                         var orderCreateEvent = JsonSerializer.Deserialize<OrderCreatedEvent>(Encoding.UTF8.GetString(e.Body.Span));
                         
                         if (orderCreateEvent != null)
                         {
-                            PublishPdfCreatedEvent(orderCreateEvent.Id);
-                            PublishPdfCreatedEventLog(orderCreateEvent.Id);
+                            var pdfCreateEvent = PublishPdfCreatedEvent(orderCreateEvent);
+                            PublishPdfCreatedEventLog(pdfCreateEvent);
                         }
 
                         _consumerChannel.BasicAck(e.DeliveryTag, false);
@@ -57,25 +59,34 @@ public sealed class Worker : BackgroundService
         return Task.CompletedTask;
     }
 
-    private void PublishPdfCreatedEvent(Guid id)
+    private PdfCreatedEvent PublishPdfCreatedEvent(OrderCreatedEvent orderCreatedEvent)
     {
+        var result = new PdfCreatedEvent 
+                     {
+                        Id = orderCreatedEvent.Id,
+                        DocumentId = $"{orderCreatedEvent:yyyy-MM-dd}_{Guid.NewGuid()}" 
+                     };
+
         using var channel = _rabbitMqConnection.CreateModel();
         channel.ExchangeDeclare("ElasticSearchEventAnalytics.PdfCreated", "fanout", false, false, null);
 
-        var body = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(new PdfCreatedEvent { Id = id }));
+        var body = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(result));
 
         channel.BasicPublish(exchange: "ElasticSearchEventAnalytics.PdfCreated", routingKey: string.Empty, basicProperties: null, body: body);
+
+        return result;
     }
 
-    private void PublishPdfCreatedEventLog(Guid id)
+    private void PublishPdfCreatedEventLog(PdfCreatedEvent pdfCreatedEvent)
     {
         using var channel = _rabbitMqConnection.CreateModel();
         channel.QueueDeclare("ElasticSearchEventAnalytics.EventLog", false, false, false, null);
 
         var body = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(new PdfCreatedEventLog
                                                                     {
-                                                                        DocumentId = $"2023-05-24_{Guid.NewGuid()}",
-                                                                        EventId = id
+                                                                        DocumentId = pdfCreatedEvent.DocumentId,
+                                                                        EventId = pdfCreatedEvent.Id,
+                                                                        CreateDate = pdfCreatedEvent.CreateDate
                                                                     }));
 
         channel.BasicPublish(exchange: string.Empty, routingKey: "ElasticSearchEventAnalytics.EventLog", basicProperties: null, body: body);

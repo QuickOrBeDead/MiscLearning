@@ -1,3 +1,6 @@
+using System.Text;
+using System.Text.Json;
+using EmailWorker.Model;
 using Microsoft.Extensions.Hosting;
 
 using RabbitMQ.Client;
@@ -8,11 +11,13 @@ namespace EmailWorker;
 public sealed class Worker : BackgroundService
 {
     private readonly IModel _consumerChannel;
+    private readonly IConnection _rabbitMqConnection;
     private string? _consumerTag;
 
-    public Worker(IModel consumerChannel)
+    public Worker(IModel consumerChannel, IConnection rabbitMqConnection)
     {
         _consumerChannel = consumerChannel;    
+        _rabbitMqConnection = rabbitMqConnection;
     }
 
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
@@ -28,6 +33,14 @@ public sealed class Worker : BackgroundService
                 {
                     try
                     {
+                        Thread.Sleep(3_000);
+                        
+                        var pdfCreatedEvent = JsonSerializer.Deserialize<PdfCreatedEvent>(Encoding.UTF8.GetString(e.Body.Span));
+                        if (pdfCreatedEvent != null)
+                        {
+                            PublishEmailSentEventLog(pdfCreatedEvent);
+                        }
+
                         _consumerChannel.BasicAck(e.DeliveryTag, false);
                     }
                     catch (Exception)
@@ -53,5 +66,19 @@ public sealed class Worker : BackgroundService
         _consumerChannel?.Dispose();
 
         await base.StopAsync(cancellationToken);
+    }
+
+    private void PublishEmailSentEventLog(PdfCreatedEvent pdfCreatedEvent)
+    {
+        using var channel = _rabbitMqConnection.CreateModel();
+        channel.QueueDeclare("ElasticSearchEventAnalytics.EventLog", false, false, false, null);
+
+        var body = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(new EmailSentEventLog
+                                                                    {
+                                                                        DocumentId = pdfCreatedEvent.DocumentId,
+                                                                        EventId = pdfCreatedEvent.Id
+                                                                    }));
+
+        channel.BasicPublish(exchange: string.Empty, routingKey: "ElasticSearchEventAnalytics.EventLog", basicProperties: null, body: body);
     }
 }
