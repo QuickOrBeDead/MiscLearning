@@ -64,7 +64,7 @@ public sealed class Worker : BackgroundService
         var result = new PdfCreatedEvent 
                      {
                         Id = orderCreatedEvent.Id,
-                        DocumentId = $"{orderCreatedEvent.CreateDate:yyyy-MM-dd}_{Guid.NewGuid()}" 
+                        DocumentId = $"{orderCreatedEvent.CreateDate:yyyy-MM-dd}_{orderCreatedEvent.Id}" 
                      };
 
         using var channel = _rabbitMqConnection.CreateModel();
