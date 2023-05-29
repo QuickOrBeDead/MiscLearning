@@ -14,7 +14,7 @@ public sealed class Worker : BackgroundService
 {
     private readonly IModel _consumerChannel;
     private readonly IConnection _rabbitMqConnection;
-    private string? _consumerTag;
+    private string _consumerTag;
 
     public Worker(IModel consumerChannel, IConnection rabbitMqConnection)
     {

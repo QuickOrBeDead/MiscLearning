@@ -14,7 +14,7 @@ public class Worker : BackgroundService
 {
     private readonly IModel _consumerChannel;
     private readonly IElasticClient _elasticClient;
-    private string? _consumerTag;
+    private string _consumerTag;
 
     public Worker(IModel consumerChannel, IElasticClient elasticClient)
     {

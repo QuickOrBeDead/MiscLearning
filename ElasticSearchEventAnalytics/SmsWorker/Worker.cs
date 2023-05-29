@@ -1,3 +1,4 @@
+using System.Net.Mail;
 using System.Text;
 using System.Text.Json;
 using Microsoft.Extensions.Hosting;
@@ -12,7 +13,7 @@ public sealed class Worker : BackgroundService
 {
     private readonly IModel _consumerChannel;
     private readonly IConnection _rabbitMqConnection;
-    private string? _consumerTag;
+    private string _consumerTag;
 
     public Worker(IModel consumerChannel, IConnection rabbitMqConnection)
     {
@@ -38,6 +39,7 @@ public sealed class Worker : BackgroundService
                         var pdfCreatedEvent = JsonSerializer.Deserialize<PdfCreatedEvent>(Encoding.UTF8.GetString(e.Body.Span));
                         if (pdfCreatedEvent != null)
                         {
+                            SendEmail(pdfCreatedEvent);
                             PublishSmsSentEventLog(pdfCreatedEvent);
                         }
 
@@ -66,6 +68,21 @@ public sealed class Worker : BackgroundService
         _consumerChannel?.Dispose();
 
         await base.StopAsync(cancellationToken);
+    }
+
+    private void SendEmail(PdfCreatedEvent pdfCreatedEvent)
+    {
+        using var message = new MailMessage();
+        using var smtp = new SmtpClient();
+        message.From = new MailAddress("from@test.com");
+        message.To.Add(new MailAddress("to@test.com"));
+        message.Subject = $"Document {pdfCreatedEvent.DocumentId} Sms";
+        message.IsBodyHtml = true;
+        message.Body = $"Hi,<br><a href=\"http://localhost:8090/view/{pdfCreatedEvent.DocumentId}\">{pdfCreatedEvent.DocumentId}</a>";
+        smtp.Port = 25;
+        smtp.Host = "host.docker.internal";
+        smtp.DeliveryMethod = SmtpDeliveryMethod.Network;
+        smtp.Send(message);
     }
 
     private void PublishSmsSentEventLog(PdfCreatedEvent pdfCreatedEvent)
