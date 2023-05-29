@@ -6,6 +6,7 @@ public sealed class EventLog
 {
     public Guid EventId { get; set; }
 
+    [Keyword()]
     public string EventType { get; set; }
 
     public string DocumentId { get; set; }
