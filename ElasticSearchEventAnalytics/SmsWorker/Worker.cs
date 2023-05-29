@@ -78,7 +78,7 @@ public sealed class Worker : BackgroundService
         message.To.Add(new MailAddress("to@test.com"));
         message.Subject = $"Document {pdfCreatedEvent.DocumentId} Sms";
         message.IsBodyHtml = true;
-        message.Body = $"Hi,<br><a href=\"http://localhost:8090/view/{pdfCreatedEvent.DocumentId}\">{pdfCreatedEvent.DocumentId}</a>";
+        message.Body = $"Hi,<br>You can view document at <a href=\"http://localhost:8090/view/{pdfCreatedEvent.DocumentId}\">{pdfCreatedEvent.DocumentId}</a>";
         smtp.Port = 25;
         smtp.Host = "host.docker.internal";
         smtp.DeliveryMethod = SmtpDeliveryMethod.Network;
