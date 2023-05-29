@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
-    <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>dotnet-EventLogWorker-0c49de8a-1240-49fc-90f0-7d1c43f6b30a</UserSecretsId>
   </PropertyGroup>

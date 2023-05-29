@@ -1,6 +1,4 @@
-using Nest;
-
-namespace EventLogWorker.Model;
+namespace EmailWorker.Model;
 
 public sealed class EventLog
 {
@@ -10,6 +8,10 @@ public sealed class EventLog
 
     public string DocumentId { get; set; }
 
-    [Date(Name = "@timestamp")]
     public DateTime CreateDate { get; set; }
+
+    public EventLog()
+    {
+        CreateDate = DateTime.Now;
+    }
 }

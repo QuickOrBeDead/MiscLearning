@@ -73,10 +73,11 @@ public sealed class Worker : BackgroundService
         using var channel = _rabbitMqConnection.CreateModel();
         channel.QueueDeclare("ElasticSearchEventAnalytics.EventLog", false, false, false, null);
 
-        var body = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(new EmailSentEventLog
+        var body = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(new EventLog
                                                                     {
                                                                         DocumentId = pdfCreatedEvent.DocumentId,
-                                                                        EventId = pdfCreatedEvent.Id
+                                                                        EventId = pdfCreatedEvent.Id,
+                                                                        EventType = "EmailIsSent"
                                                                     }));
 
         channel.BasicPublish(exchange: string.Empty, routingKey: "ElasticSearchEventAnalytics.EventLog", basicProperties: null, body: body);

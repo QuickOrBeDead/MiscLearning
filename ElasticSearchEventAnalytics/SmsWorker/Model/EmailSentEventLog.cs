@@ -1,14 +1,16 @@
 namespace SmsWorker.Model;
 
-public sealed class SmsSentEventLog
+public sealed class EventLog
 {
     public Guid EventId { get; set; }
+
+    public string EventType { get; set; }
 
     public DateTime CreateDate { get; set; }
 
     public string DocumentId { get; set; }
 
-    public SmsSentEventLog()
+    public EventLog()
     {
         CreateDate = DateTime.Now;
     }
