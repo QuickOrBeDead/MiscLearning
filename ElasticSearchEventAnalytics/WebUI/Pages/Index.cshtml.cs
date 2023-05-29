@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
+﻿using Microsoft.AspNetCore.Mvc.RazorPages;
 
 using RabbitMQ.Client;
 
@@ -12,6 +11,7 @@ namespace WebUI.Pages;
 
 public class IndexModel : PageModel
 {
+    public string Message { get; set; }
     private readonly IConnection _rabbitMqConnection;
     public IndexModel(IConnection rabbitMqConnection)
     {
@@ -32,5 +32,7 @@ public class IndexModel : PageModel
         var body = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(new OrderCreatedEvent()));
 
         channel.BasicPublish(exchange: "ElasticSearchEventAnalytics.OrderCreated", routingKey: string.Empty, basicProperties: null, body: body);
+
+        Message = $"Order is create at {DateTime.Now}";
     }
 }
