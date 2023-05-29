@@ -81,7 +81,7 @@ services:
     build:
       context: .
       dockerfile: EventLogWorker/Dockerfile
-  volumes:
+    volumes:
       - ~/.vsdbg:/remote_debugger:rw
 
   webui:
