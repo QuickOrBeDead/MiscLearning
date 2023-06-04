@@ -43,6 +43,7 @@ public sealed class Worker : BackgroundService
                         {
                             var pdfCreateEvent = PublishPdfCreatedEvent(orderCreateEvent);
                             PublishPdfCreatedEventLog(pdfCreateEvent);
+                            PublishPdfCreatedDocumentEventLog(pdfCreateEvent);
                         }
 
                         _consumerChannel.BasicAck(e.DeliveryTag, false);
@@ -91,6 +92,22 @@ public sealed class Worker : BackgroundService
                                                                     }));
 
         channel.BasicPublish(exchange: string.Empty, routingKey: "ElasticSearchEventAnalytics.EventLog", basicProperties: null, body: body);
+    }
+
+    private void PublishPdfCreatedDocumentEventLog(PdfCreatedEvent pdfCreatedEvent)
+    {
+        using var channel = _rabbitMqConnection.CreateModel();
+        channel.QueueDeclare("ElasticSearchEventAnalytics.DocumentEventLog", false, false, false, null);
+
+        var body = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(new DocumentEventLog
+                                                                    {
+                                                                        DocumentId = pdfCreatedEvent.DocumentId,
+                                                                        EventId = pdfCreatedEvent.Id,
+                                                                        CreateDate = pdfCreatedEvent.CreateDate,
+                                                                        IsPdfCreated = true
+                                                                    }));
+
+        channel.BasicPublish(exchange: string.Empty, routingKey: "ElasticSearchEventAnalytics.DocumentEventLog", basicProperties: null, body: body);
     }
 
     public override async Task StopAsync(CancellationToken cancellationToken)

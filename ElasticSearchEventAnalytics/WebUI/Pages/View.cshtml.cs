@@ -21,22 +21,45 @@ public class ViewModel : PageModel
 
     public void OnGet(string documentId)
     {
-        using var channel = _rabbitMqConnection.CreateModel();
-        channel.QueueDeclare("ElasticSearchEventAnalytics.EventLog", false, false, false, null);
+        var eventId = ParseEventId(documentId);
 
-        var body = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(new EventLog
-                                                                    {
-                                                                        DocumentId = documentId,
-                                                                        EventId = ParseDocumentId(documentId),
-                                                                        EventType = "DocumentIsViewed"
-                                                                    }));
-
-        channel.BasicPublish(exchange: string.Empty, routingKey: "ElasticSearchEventAnalytics.EventLog", basicProperties: null, body: body);
+        PublishDocumentViewedEventLog(documentId, eventId);
+        PublishDocumentViewedDocumentEventLog(documentId, eventId);
 
         Message = $"Document {documentId} is viewed at {DateTime.Now}";
     }
 
-    private static Guid ParseDocumentId(string key)
+    private void PublishDocumentViewedEventLog(string documentId, Guid eventId)
+    {
+        using var channel = _rabbitMqConnection.CreateModel();
+        channel.QueueDeclare("ElasticSearchEventAnalytics.EventLog", false, false, false, null);
+
+        var body = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(new EventLog
+        {
+            DocumentId = documentId,
+            EventId = eventId,
+            EventType = "DocumentIsViewed"
+        }));
+
+        channel.BasicPublish(exchange: string.Empty, routingKey: "ElasticSearchEventAnalytics.EventLog", basicProperties: null, body: body);
+    }
+
+    private void PublishDocumentViewedDocumentEventLog(string documentId, Guid eventId)
+    {
+        using var channel = _rabbitMqConnection.CreateModel();
+        channel.QueueDeclare("ElasticSearchEventAnalytics.DocumentEventLog", false, false, false, null);
+
+        var body = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(new DocumentEventLog
+                                                                    {
+                                                                        DocumentId = documentId,
+                                                                        EventId = eventId,
+                                                                        IsDocumentViewed = true
+                                                                    }));
+
+        channel.BasicPublish(exchange: string.Empty, routingKey: "ElasticSearchEventAnalytics.DocumentEventLog", basicProperties: null, body: body);
+    }
+
+    private static Guid ParseEventId(string key)
     {
         if (string.IsNullOrWhiteSpace(key))
         {
