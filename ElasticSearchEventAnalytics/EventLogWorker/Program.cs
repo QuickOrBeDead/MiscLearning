@@ -15,7 +15,7 @@ IHost host = Host.CreateDefaultBuilder(args)
         services.AddSingleton<IModel>(x => {
             return x.GetRequiredService<IConnection>().CreateModel();
         });
-        services.AddSingleton<IElasticClient>(_ => new ElasticClient(new ConnectionSettings(new Uri("http://elasticsearch:9200"))/*.DefaultMappingFor<DocumentEventLog>(x => x.IdProperty(y => y.EventId).IndexName("documenteventlog"))*/));
+        services.AddSingleton<IElasticClient>(_ => new ElasticClient(new ConnectionSettings(new Uri("http://elasticsearch:9200"))));
         services.AddHostedService<Worker>();
     })
     .Build();
