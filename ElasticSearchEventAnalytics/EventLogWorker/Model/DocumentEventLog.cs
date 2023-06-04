@@ -2,6 +2,7 @@ using Nest;
 
 namespace EventLogWorker.Model;
 
+ [ElasticsearchType(IdProperty = "EventId")]
 public sealed class DocumentEventLog
 {
     public Guid EventId { get; set; }
