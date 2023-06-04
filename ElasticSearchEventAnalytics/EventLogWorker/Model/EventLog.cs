@@ -9,6 +9,7 @@ public sealed class EventLog
     [Keyword]
     public string EventType { get; set; }
 
+    [Keyword]
     public string DocumentId { get; set; }
 
     [Date(Name = "@timestamp")]
