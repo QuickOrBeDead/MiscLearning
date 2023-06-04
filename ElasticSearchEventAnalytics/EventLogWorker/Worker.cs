@@ -74,7 +74,9 @@ public class Worker : BackgroundService
 
                 if (eventLog != null)
                 {
-                    var getResponse = _elasticClient.Get<DocumentEventLog>(eventLog.EventId);
+                    var indexName = $"documenteventlog-{eventLog.CreateDate:yyyy-MM-dd}";
+
+                    var getResponse = _elasticClient.Get<DocumentEventLog>(eventLog.EventId, x => x.Index(indexName));
                     if (getResponse.IsValid && getResponse.Found)
                     {
                         var document = getResponse.Source;
@@ -102,7 +104,7 @@ public class Worker : BackgroundService
                     }
                     else
                     {
-                        _elasticClient.Index(eventLog, x => x.Index($"documenteventlog-{eventLog.CreateDate:yyyy-MM-dd}"));
+                        _elasticClient.Index(eventLog, x => x.Index(indexName));
                     }
                 }
 
