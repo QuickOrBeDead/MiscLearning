@@ -100,7 +100,7 @@ public class Worker : BackgroundService
                             document.IsDocumentViewed = eventLog.IsDocumentViewed;
                         }
 
-                        _elasticClient.Update<DocumentEventLog>(eventLog.EventId, x => x.Doc(document));
+                        _elasticClient.Update<DocumentEventLog>(eventLog.EventId, x => x.Doc(document).Index(indexName));
                     }
                     else
                     {
