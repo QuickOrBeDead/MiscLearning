@@ -11,3 +11,8 @@ export interface YtAudio {
       url: string;
     }>;
 }
+
+export interface AudioControlSource {
+    src: string,
+    mimeType: string
+}
