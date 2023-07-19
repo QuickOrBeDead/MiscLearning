@@ -5,15 +5,17 @@ import { apiFetch } from '../apiFetch';
 
 let videoUrl = ref('')
 const audio = ref<HTMLAudioElement>()
+const audioInfo = ref<YtAudio>()
 const sources = ref<AudioControlSource[]>()
 
 async function go() {
     if (videoUrl?.value) {
         const videoId = parseVideoId(videoUrl?.value)
-        const audioInfo = await apiFetch.get<YtAudio>(`http://localhost:8888/info/${videoId}`) 
-        const formats: AudioControlSource[] = Object.entries(audioInfo.formats as Record<string, string>)
+        const ytAudioInfo = await apiFetch.get<YtAudio>(`http://localhost:8888/info/${videoId}`) 
+        const formats: AudioControlSource[] = Object.entries(ytAudioInfo.formats as Record<string, string>)
             .map(arr => { return { src: arr[1], mimeType: arr[0] } })
         
+        audioInfo.value = ytAudioInfo
         sources.value = formats
     }
 }
@@ -47,12 +49,19 @@ function parseVideoId(url: string = ''): string {
         </div>
         <div class="row" v-if="sources?.length">
             <div class="col-12 p-3">
-                <audio controls ref="audio">
-                    <template v-for="source in sources">
-                        <source :src="source.src" :type="source.mimeType">
-                    </template>
-                    Your browser does not support the audio element.
-                </audio>
+                <div class="card" style="width: 22rem;">
+                    <img :src="(audioInfo?.images?.length ? audioInfo?.images[0]?.url : '')" class="card-img-top" alt="...">
+                    <div class="card-body">
+                        <audio controls ref="audio">
+                            <template v-for="source in sources">
+                                <source :src="source.src" :type="source.mimeType">
+                            </template>
+                            Your browser does not support the audio element.
+                        </audio>
+                        <h5 class="card-title">{{ audioInfo?.title }}</h5>
+                        <p class="card-text">{{ audioInfo?.description }}</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
