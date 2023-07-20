@@ -18,20 +18,35 @@ app.get('/info/:videoID/', (req, res) => {
       ytdl
         .getInfo(id)
         .then(info => {
-          const formats = {};
+          const formats = [];
           info.formats
-            .filter(file => file.mimeType.startsWith('audio'))
+            .filter(file => file.mimeType && file.mimeType.startsWith('audio'))
             .map(file => {
-              formats[file.mimeType.split(';')[0]] = file.url;
+              if (file.url) {
+                formats.push({
+                  mimeType: file.mimeType.split(';')[0],
+                  audioBitrate: file.audioBitrate,
+                  audioQuality: file.audioQuality,
+                  bitrate: file.bitrate,
+                  contentLength: file.contentLength,
+                  hasAudio: file.hasAudio,
+                  hasVideo: file.hasVideo,
+                  isLive: file.isLive,
+                  isHLS: file.isHLS,
+                  itag: file.itag,
+                  quality: file.quality,
+                  url: file.url
+                });
+              }
             });
   
           res.send({
-            url: ytdl.chooseFormat(info.formats, { filter: 'audioonly' }).url,
             formats,
             author: info.videoDetails.author.name,
             title: info.videoDetails.title,
             description: info.videoDetails.description,
             images: info.player_response.videoDetails.thumbnail.thumbnails,
+            duration: info.videoDetails.lengthSeconds
           });
         })
         .catch(e => {
