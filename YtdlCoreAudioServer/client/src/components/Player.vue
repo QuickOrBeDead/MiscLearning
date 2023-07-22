@@ -87,6 +87,12 @@ function chooseByQuality(formats: Record<string, YtAudioFormat[]>, quality: Audi
 }
 
 function groupByFormats(formats: Array<YtAudioFormat>): Record<string, Array<YtAudioFormat>> {
+    if (formats.length === 1) {
+        const result: Record<string, Array<YtAudioFormat>> = { }
+        result[formats[0].mimeType] = [formats[0]]
+        return result
+    }
+
     let firstFormat = true;
     return formats.reduce((acc, format) => {
         const { mimeType } = format
