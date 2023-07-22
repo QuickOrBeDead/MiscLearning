@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { AudioContent, AudioControlSource, YtAudio, YtAudioFormat, YtAudioImage } from '../types'
 import { apiFetch } from '../apiFetch'
+import { config } from '../config';
 
 let videoUrl = ref('')
 const audio = ref<HTMLAudioElement>()
@@ -14,7 +15,7 @@ enum AudioQuality {
 
 async function go() {
     if (videoUrl?.value) {
-        const ytAudioInfo = await apiFetch.get<YtAudio>(`http://localhost:8888/info/${parseVideoId(videoUrl?.value)}`) 
+        const ytAudioInfo = await apiFetch.get<YtAudio>(`${config.ytAudioServer}/info/${parseVideoId(videoUrl?.value)}`) 
         const image = chooseImage(ytAudioInfo.images)
 
         audioInfo.value = {
