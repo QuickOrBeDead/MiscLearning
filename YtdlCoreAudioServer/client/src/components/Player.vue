@@ -1,23 +1,101 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { AudioControlSource, YtAudio } from '../types'
-import { apiFetch } from '../apiFetch';
+import { AudioContent, AudioControlSource, YtAudio, YtAudioFormat, YtAudioImage } from '../types'
+import { apiFetch } from '../apiFetch'
 
 let videoUrl = ref('')
 const audio = ref<HTMLAudioElement>()
-const audioInfo = ref<YtAudio>()
-const sources = ref<AudioControlSource[]>()
+const audioInfo = ref<AudioContent>()
+
+enum AudioQuality {
+  Low = 1,
+  High
+}
 
 async function go() {
     if (videoUrl?.value) {
-        const videoId = parseVideoId(videoUrl?.value)
-        const ytAudioInfo = await apiFetch.get<YtAudio>(`http://localhost:8888/info/${videoId}`) 
-        const formats: AudioControlSource[] = Object.entries(ytAudioInfo.formats as Record<string, string>)
-            .map(arr => { return { src: arr[1], mimeType: arr[0] } })
-        
-        audioInfo.value = ytAudioInfo
-        sources.value = formats
+        const ytAudioInfo = await apiFetch.get<YtAudio>(`http://localhost:8888/info/${parseVideoId(videoUrl?.value)}`) 
+        const image = chooseImage(ytAudioInfo.images)
+
+        audioInfo.value = {
+            title: ytAudioInfo.title,
+            description: ytAudioInfo.description,
+            author: ytAudioInfo.author,
+            image: image,
+            audioSources: chooseFormats(ytAudioInfo, AudioQuality.Low),
+            width: chooseWidth(image)
+        }
+
+        audio.value?.load()
     }
+}
+
+function chooseWidth(image: YtAudioImage | undefined): number {
+    if (!image || image.width < 300) {
+        return 300
+    }
+
+    return image.width
+}
+
+function chooseImage(images: Array<YtAudioImage> | undefined) {
+    if (!images) {
+        return undefined
+    }
+
+    if (images.length > 3) {
+        return images[3]
+    }
+
+    if (images.length > 2) {
+        return images[2]
+    }
+
+    if (images.length > 1) {
+        return images[1]
+    }
+
+    if (images.length > 0) {
+        return images[0]
+    }
+
+    return undefined
+}
+
+function chooseFormats(ytAudioInfo: YtAudio, quality: AudioQuality): AudioControlSource[] {
+    if (ytAudioInfo.formats) {
+        return chooseByQuality(groupByFormats(ytAudioInfo.formats), quality);
+    }
+    
+    return [];
+}
+
+function chooseByQuality(formats: Record<string, YtAudioFormat[]>, quality: AudioQuality): AudioControlSource[] {
+    const result: AudioControlSource[] = [];
+    for (const format in formats) {
+        let values = formats[format];
+        if (values) {
+            values = values.sort((a, b) => (a.bitrate - b.bitrate) * (quality == AudioQuality.High ? -1 : 1))
+
+            if (values.length) {
+                result.push({ mimeType: format, src: values[0].url })
+            }
+        }
+    }
+
+    return result
+}
+
+function groupByFormats(formats: Array<YtAudioFormat>): Record<string, Array<YtAudioFormat>> {
+    let firstFormat = true;
+    return formats.reduce((acc, format) => {
+        const { mimeType } = format
+        const group = firstFormat ? {} : acc as any
+        firstFormat = false
+        group[mimeType] = group[mimeType] ?? []
+        group[mimeType].push(format)
+        return group
+    }) as any as Record<string, Array<YtAudioFormat>>
 }
 
 function parseVideoId(url: string = ''): string {
@@ -35,7 +113,6 @@ function parseVideoId(url: string = ''): string {
     return ''
   }
 }
-
 </script>
 <template>
     <div class="container">
@@ -47,13 +124,13 @@ function parseVideoId(url: string = ''): string {
                 </div>
             </div>
         </div>
-        <div class="row" v-if="sources?.length">
+        <div class="row justify-content-center" v-if="audioInfo?.audioSources?.length">
             <div class="col-12 p-3">
-                <div class="card" style="width: 22rem;">
-                    <img :src="(audioInfo?.images?.length ? audioInfo?.images[0]?.url : '')" class="card-img-top" alt="...">
+                <div class="card text-center" :style="{width: audioInfo.width + 'px'}">
+                    <img v-if="audioInfo?.image" :src="audioInfo.image.url" alt="..." :width="audioInfo.image.width" :height="audioInfo.image.height">
                     <div class="card-body">
                         <audio controls ref="audio">
-                            <template v-for="source in sources">
+                            <template v-for="source in audioInfo.audioSources">
                                 <source :src="source.src" :type="source.mimeType">
                             </template>
                             Your browser does not support the audio element.
