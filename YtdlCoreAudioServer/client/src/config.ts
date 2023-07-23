@@ -1,7 +1,7 @@
 export interface Config {
-    ytAudioServer: string;
+    ytAudioServerPort: number;
 }
 
 export const config: Config = {
-    ytAudioServer: import.meta.env.VITE_YT_AUDIO_SERVER
+    ytAudioServerPort: import.meta.env.VITE_YT_AUDIO_SERVER_PORT
 }

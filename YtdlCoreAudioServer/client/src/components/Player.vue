@@ -15,7 +15,7 @@ enum AudioQuality {
 
 async function go() {
     if (videoUrl?.value) {
-        const ytAudioInfo = await apiFetch.get<YtAudio>(`${config.ytAudioServer}/info/${parseVideoId(videoUrl?.value)}`) 
+        const ytAudioInfo = await apiFetch.get<YtAudio>(`${window.location.protocol}//${window.location.hostname}:${config.ytAudioServerPort}/info/${parseVideoId(videoUrl?.value)}`) 
         const image = chooseImage(ytAudioInfo.images)
 
         audioInfo.value = {
@@ -124,7 +124,7 @@ function parseVideoId(url: string = ''): string {
 <template>
     <div class="container">
         <div class="row">
-            <div class="col-12">
+            <div class="col-12" style="margin: 0; padding: 0;">
                 <div class="input-group">
                     <input type="text" v-model="videoUrl" class="form-control form-control-lg" placeholder="Youtube Video Url" aria-label="Youtube Video Url">
                     <button type="button" @click="go" class="btn btn-primary">Go</button>
@@ -132,7 +132,7 @@ function parseVideoId(url: string = ''): string {
             </div>
         </div>
         <div class="row justify-content-center" v-if="audioInfo?.audioSources?.length">
-            <div class="col-12 p-3">
+            <div class="col-12 mt-3" style="margin: 0; padding: 0;">
                 <div class="card text-center" :style="{width: audioInfo.width + 'px'}">
                     <img v-if="audioInfo?.image" :src="audioInfo.image.url" alt="..." :width="audioInfo.image.width" :height="audioInfo.image.height">
                     <div class="card-body">
