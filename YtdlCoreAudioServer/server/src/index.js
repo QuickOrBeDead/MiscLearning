@@ -51,16 +51,24 @@ app.get('/info/:videoID/', (req, res) => {
         })
         .catch(e => {
           console.log(e);
+
+          if (e.constructor && e.constructor.name === 'UnrecoverableError')
+          {
+            return res.status(500).send({
+              reason: e.message
+            });
+          }
+          
           return res.status(400).send({
             url: '',
             author: '',
-            title: '',
+            title: ''
           });
         });
     } catch (e) {
       res.status(500).send({
         error: 'unexpected server error',
-        reason: '',
+        reason: ''
       });
     }
   });
