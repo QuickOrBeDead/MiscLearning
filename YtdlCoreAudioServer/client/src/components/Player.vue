@@ -2,7 +2,10 @@
 import { ref } from 'vue'
 import { AudioContent, AudioControlSource, YtAudio, YtAudioFormat, YtAudioImage } from '../types'
 import { apiFetch } from '../apiFetch'
-import { config } from '../config';
+import { config } from '../config'
+import { useLoadingStore } from '../stores/loading'
+
+const loading = useLoadingStore()
 
 let videoUrl = ref('')
 const audio = ref<HTMLAudioElement>()
@@ -15,19 +18,29 @@ enum AudioQuality {
 
 async function go() {
     if (videoUrl?.value) {
-        const ytAudioInfo = await apiFetch.get<YtAudio>(`${window.location.protocol}//${window.location.hostname}:${config.ytAudioServerPort}/info/${parseVideoId(videoUrl?.value)}`) 
-        const image = chooseImage(ytAudioInfo.images)
+        try {
+            loading.enable()
 
-        audioInfo.value = {
-            title: ytAudioInfo.title,
-            description: ytAudioInfo.description,
-            author: ytAudioInfo.author,
-            image: image,
-            audioSources: chooseFormats(ytAudioInfo, AudioQuality.Low),
-            width: chooseWidth(image)
+            const ytAudioInfo = await apiFetch.get<YtAudio>(`${window.location.protocol}//${window.location.hostname}:${config.ytAudioServerPort}/info/${parseVideoId(videoUrl?.value)}`) 
+            const image = chooseImage(ytAudioInfo.images)
+
+            audioInfo.value = {
+                title: ytAudioInfo.title,
+                description: ytAudioInfo.description,
+                author: ytAudioInfo.author,
+                image: image,
+                audioSources: chooseFormats(ytAudioInfo, AudioQuality.Low),
+                width: chooseWidth(image)
+            }
+
+            audio.value?.load()
+
+            loading.disable()
+        } catch {
+            loading.disable()
+        } finally {
+            loading.disable()
         }
-
-        audio.value?.load()
     }
 }
 
