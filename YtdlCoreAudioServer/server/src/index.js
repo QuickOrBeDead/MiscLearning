@@ -52,7 +52,9 @@ app.get('/info/:videoID/', (req, res) => {
         .catch(e => {
           console.log(e);
 
-          if (e.constructor && e.constructor.name === 'UnrecoverableError')
+          if (
+            (e.constructor && e.constructor.name === 'UnrecoverableError') ||
+            (e.errno === -3001))
           {
             return res.status(500).send({
               reason: e.message
