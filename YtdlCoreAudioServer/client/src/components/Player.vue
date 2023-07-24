@@ -45,6 +45,8 @@ async function go() {
         } finally {
             loading.disable()
         }
+    } else {
+        miniToastr.warn('Youtube Video Url is required', 'Warning')
     }
 }
 
