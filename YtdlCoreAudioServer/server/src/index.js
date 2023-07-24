@@ -15,6 +15,12 @@ app.listen(port, () => {
 app.get('/info/:videoID/', (req, res) => {
     try {
       const id = (req?.params?.videoID || '').replace(/[^A-Za-z0-9_\-]/g, '');
+      if (!id) {
+        return res.status(400).send({
+          reason: 'videoID is required'
+        });
+      }
+
       ytdl
         .getInfo(id)
         .then(info => {
