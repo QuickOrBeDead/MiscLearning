@@ -23,7 +23,13 @@ async function go() {
         try {
             loading.enable()
 
-            const ytAudioInfo = await apiFetch.get<YtAudio>(`${window.location.protocol}//${window.location.hostname}:${config.ytAudioServerPort}/info/${parseVideoId(videoUrl?.value)}`) 
+            const videoId = parseVideoId(videoUrl?.value)
+            if (!videoId) {
+                miniToastr.warn('Invalid Youtube Video Url', 'Warning')
+                return
+            }
+            
+            const ytAudioInfo = await apiFetch.get<YtAudio>(`${window.location.protocol}//${window.location.hostname}:${config.ytAudioServerPort}/info/${videoId}`) 
             const image = chooseImage(ytAudioInfo.images)
 
             audioInfo.value = {
