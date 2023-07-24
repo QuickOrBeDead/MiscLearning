@@ -4,6 +4,8 @@ import { AudioContent, AudioControlSource, YtAudio, YtAudioFormat, YtAudioImage 
 import { apiFetch } from '../apiFetch'
 import { config } from '../config'
 import { useLoadingStore } from '../stores/loading'
+import miniToastr from 'mini-toastr'
+import { getErrorMessage } from '../common'
 
 const loading = useLoadingStore()
 
@@ -36,8 +38,10 @@ async function go() {
             audio.value?.load()
 
             loading.disable()
-        } catch {
+        } catch (err) {
             loading.disable()
+
+            miniToastr.error(getErrorMessage(err), 'Error')
         } finally {
             loading.disable()
         }

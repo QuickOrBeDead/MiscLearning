@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "bootstrap": "^5.3.0",
+    "mini-toastr": "^0.8.1",
     "pinia": "^2.1.4",
     "vue": "^3.3.4"
   },
