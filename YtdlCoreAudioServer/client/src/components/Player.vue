@@ -150,7 +150,7 @@ function parseVideoId(url: string = ''): string {
     <div class="container">
         <div class="row">
             <div class="col-12" style="margin: 0; padding: 0;">
-                <div class="input-group">
+                <div class="input-group" v-on:keyup.enter="go">
                     <input type="text" v-model="videoUrl" class="form-control form-control-lg" placeholder="Youtube Video Url" aria-label="Youtube Video Url">
                     <button type="button" @click="go" class="btn btn-primary">Go</button>
                 </div>
