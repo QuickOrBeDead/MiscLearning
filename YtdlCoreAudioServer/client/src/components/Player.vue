@@ -43,6 +43,25 @@ async function go() {
 
             audio.value?.load()
 
+            if (navigator && navigator.mediaSession) {
+                const artwork: MediaImage[] = []
+
+                if (image) {
+                    artwork.push({
+                        src: image.url,
+                        sizes: `${image.height}x${image.width}`,
+                        type: 'image/png'
+                    })
+                }
+                
+                navigator.mediaSession.metadata = new MediaMetadata({
+                    title: ytAudioInfo.title,
+                    artist: ytAudioInfo.author,
+                    album: 'Youtube Audio Player',
+                    artwork: artwork
+                })
+            }
+
             loading.disable()
         } catch (err) {
             loading.disable()
