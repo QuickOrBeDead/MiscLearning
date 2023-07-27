@@ -53,12 +53,16 @@ async function go() {
                         type: 'image/png'
                     })
                 }
-                
+
                 navigator.mediaSession.metadata = new MediaMetadata({
                     title: ytAudioInfo.title,
                     artist: ytAudioInfo.author,
                     album: 'Youtube Audio Player',
                     artwork: artwork
+                })
+
+                navigator.mediaSession.setActionHandler('play', () => {
+                    audio.value?.play();
                 })
             }
 
