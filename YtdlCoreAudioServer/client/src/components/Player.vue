@@ -64,6 +64,12 @@ async function go() {
                 navigator.mediaSession.setActionHandler('play', () => {
                     audio.value?.play();
                 })
+
+                navigator.mediaSession.setActionHandler("seekto", details => {
+                    if (audio.value && details.seekTime !== undefined) {
+                        audio.value.currentTime = details.seekTime;
+                    }
+                })
             }
 
             loading.disable()
