@@ -28,16 +28,16 @@ app.get('/info/:videoID/', (req, res) => {
 
           if (info.videoDetails.isLive) {
             info.formats
-                .filter(file => file.mimeType && file.mimeType.startsWith('audio'))
+                .filter(file => file.isLive && file.isHLS && file.hasAudio)
                 .map(file => {
                   addToFormats(formats, file);
                 });
           } else {
             info.formats
-                .filter(file => file.isLive && file.isHLS && file.hasAudio)
+                .filter(file => file.mimeType && file.mimeType.startsWith('audio'))
                 .map(file => {
                   addToFormats(formats, file);
-                });
+                }); 
           }
  
           res.send({
