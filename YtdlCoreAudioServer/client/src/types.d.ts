@@ -6,6 +6,7 @@ export interface YtAudio {
     description?: string;
     title: string;
     images?: Array<YtAudioImage>;
+    isLive?: boolean;
 }
 
 export interface YtAudioFormat {
