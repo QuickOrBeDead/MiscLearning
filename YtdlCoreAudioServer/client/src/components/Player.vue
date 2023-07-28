@@ -43,34 +43,7 @@ async function go() {
 
             audio.value?.load()
 
-            if (navigator && navigator.mediaSession) {
-                const artwork: MediaImage[] = []
-
-                if (image) {
-                    artwork.push({
-                        src: image.url,
-                        sizes: `${image.height}x${image.width}`,
-                        type: 'image/png'
-                    })
-                }
-
-                navigator.mediaSession.metadata = new MediaMetadata({
-                    title: ytAudioInfo.title,
-                    artist: ytAudioInfo.author,
-                    album: 'Youtube Audio Player',
-                    artwork: artwork
-                })
-
-                navigator.mediaSession.setActionHandler('play', () => {
-                    audio.value?.play();
-                })
-
-                navigator.mediaSession.setActionHandler('seekto', details => {
-                    if (audio.value && details.seekTime !== undefined) {
-                        audio.value.currentTime = details.seekTime;
-                    }
-                })
-            }
+            setMediaSession(ytAudioInfo, image)
 
             loading.disable()
         } catch (err) {
@@ -85,6 +58,37 @@ async function go() {
     }
 }
 
+function setMediaSession(ytAudioInfo: YtAudio, image: YtAudioImage | undefined) {
+    if (navigator && navigator.mediaSession) {
+        const artwork: MediaImage[] = []
+
+        if (image) {
+            artwork.push({
+                src: image.url,
+                sizes: `${image.height}x${image.width}`,
+                type: 'image/png'
+            })
+        }
+
+        navigator.mediaSession.metadata = new MediaMetadata({
+            title: ytAudioInfo.title,
+            artist: ytAudioInfo.author,
+            album: 'Youtube Audio Player',
+            artwork: artwork
+        })
+
+        navigator.mediaSession.setActionHandler('play', () => {
+            audio.value?.play()
+        })
+
+        navigator.mediaSession.setActionHandler('seekto', details => {
+            if (audio.value && details.seekTime !== undefined) {
+                audio.value.currentTime = details.seekTime
+            }
+        })
+    }
+}
+
 function chooseWidth(image: YtAudioImage | undefined): number {
     if (!image || image.width < 300) {
         return 300
@@ -93,7 +97,7 @@ function chooseWidth(image: YtAudioImage | undefined): number {
     return image.width
 }
 
-function chooseImage(images: Array<YtAudioImage> | undefined) {
+function chooseImage(images: Array<YtAudioImage> | undefined): YtAudioImage | undefined {
     if (!images) {
         return undefined
     }
