@@ -25,34 +25,29 @@ app.get('/info/:videoID/', (req, res) => {
         .getInfo(id)
         .then(info => {
           const formats = [];
-          info.formats
-            .filter(file => file.mimeType && file.mimeType.startsWith('audio'))
-            .map(file => {
-              if (file.url) {
-                formats.push({
-                  mimeType: file.mimeType.split(';')[0],
-                  audioBitrate: file.audioBitrate,
-                  audioQuality: file.audioQuality,
-                  bitrate: file.bitrate,
-                  contentLength: file.contentLength,
-                  hasAudio: file.hasAudio,
-                  hasVideo: file.hasVideo,
-                  isLive: file.isLive,
-                  isHLS: file.isHLS,
-                  itag: file.itag,
-                  quality: file.quality,
-                  url: file.url
+
+          if (info.videoDetails.isLive) {
+            info.formats
+                .filter(file => file.mimeType && file.mimeType.startsWith('audio'))
+                .map(file => {
+                  addToFormats(formats, file);
                 });
-              }
-            });
-  
+          } else {
+            info.formats
+                .filter(file => file.isLive && file.isHLS && file.hasAudio)
+                .map(file => {
+                  addToFormats(formats, file);
+                });
+          }
+ 
           res.send({
             formats,
             author: info.videoDetails.author.name,
             title: info.videoDetails.title,
             description: info.videoDetails.description,
             images: info.player_response.videoDetails.thumbnail.thumbnails,
-            duration: info.videoDetails.lengthSeconds
+            duration: info.videoDetails.lengthSeconds,
+            isLive: info.videoDetails.isLive
           });
         })
         .catch(e => {
@@ -80,3 +75,23 @@ app.get('/info/:videoID/', (req, res) => {
       });
     }
   });
+  
+function addToFormats(formats, file) {
+  if (file.url) {
+    formats.push({
+      mimeType: file.mimeType.split(';')[0],
+      audioBitrate: file.audioBitrate,
+      audioQuality: file.audioQuality,
+      bitrate: file.bitrate,
+      contentLength: file.contentLength,
+      hasAudio: file.hasAudio,
+      hasVideo: file.hasVideo,
+      isLive: file.isLive,
+      isHLS: file.isHLS,
+      itag: file.itag,
+      quality: file.quality,
+      url: file.url
+    });
+  }
+}
+
