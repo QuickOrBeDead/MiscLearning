@@ -23,8 +23,10 @@
     return lp;
 }
 
-static IList<string> GenerateDiffList(string[] s1, string[] s2, int[,] lp)
+static IList<string> GenerateDiffList(string[] s1, string[] s2)
 {
+    int[,] lp = PrepareLCSArray(s1, s2);
+
     var n = s1.Length;
     var m = s2.Length;
     var diff = new List<string>();
@@ -64,7 +66,7 @@ var dataPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data");
 var s1 = File.ReadAllLines(Path.Combine(dataPath, "Text1.txt"));
 var s2 = File.ReadAllLines(Path.Combine(dataPath, "Text2.txt"));
 
-var diff = GenerateDiffList(s1, s2, PrepareLCSArray(s1, s2));
+var diff = GenerateDiffList(s1, s2);
 
 Console.WriteLine("S1\t = {0}", string.Join(" ", s1));
 Console.WriteLine("S2\t = {0}", string.Join(" ", s2));
