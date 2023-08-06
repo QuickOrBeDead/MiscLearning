@@ -1,6 +1,8 @@
-﻿
-var s1 = "this is some text that will be    changed".Split(' ');
-var s2 = "this is the changed text".Split(' ');
+﻿using System.IO;
+
+var dataPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data");
+var s1 = File.ReadAllText(Path.Combine(dataPath, "Text1.txt")).Split(' ');
+var s2 = File.ReadAllText(Path.Combine(dataPath, "Text2.txt")).Split(' ');
 
 var n = s1.Length;
 var m = s2.Length;
