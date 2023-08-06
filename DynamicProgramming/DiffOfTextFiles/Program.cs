@@ -61,14 +61,14 @@ static IList<string> GenerateDiffList(string[] s1, string[] s2, int[,] lp)
 }
 
 var dataPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data");
-var s1 = File.ReadAllText(Path.Combine(dataPath, "Text1.txt")).Split(' ');
-var s2 = File.ReadAllText(Path.Combine(dataPath, "Text2.txt")).Split(' ');
+var s1 = File.ReadAllLines(Path.Combine(dataPath, "Text1.txt"));
+var s2 = File.ReadAllLines(Path.Combine(dataPath, "Text2.txt"));
 
 var diff = GenerateDiffList(s1, s2, PrepareLCSArray(s1, s2));
 
 Console.WriteLine("S1\t = {0}", string.Join(" ", s1));
 Console.WriteLine("S2\t = {0}", string.Join(" ", s2));
-Console.Write("Diff\t = ");
+Console.WriteLine("Diff:");
 
 foreach (var s in diff)
 {
@@ -88,7 +88,7 @@ foreach (var s in diff)
         Console.Write(s);
     }
 
-    Console.Write(' ');
+    Console.Write(Environment.NewLine);
 }
 
 Console.WriteLine();
