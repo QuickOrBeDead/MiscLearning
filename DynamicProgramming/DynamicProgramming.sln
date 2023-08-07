@@ -19,6 +19,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiffOfTwoStringsWordByWord"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiffOfTextFiles", "DiffOfTextFiles\DiffOfTextFiles.csproj", "{514E4BE5-05B1-4185-A5CF-9126B8B691B8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiffOfTwoStringsLineByLine", "DiffOfTwoStringsLineByLine\DiffOfTwoStringsLineByLine.csproj", "{C5A09477-5F2A-4630-880C-DAF71B06E6EA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -57,6 +59,10 @@ Global
 		{514E4BE5-05B1-4185-A5CF-9126B8B691B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{514E4BE5-05B1-4185-A5CF-9126B8B691B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{514E4BE5-05B1-4185-A5CF-9126B8B691B8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C5A09477-5F2A-4630-880C-DAF71B06E6EA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C5A09477-5F2A-4630-880C-DAF71B06E6EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C5A09477-5F2A-4630-880C-DAF71B06E6EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C5A09477-5F2A-4630-880C-DAF71B06E6EA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
