@@ -2,8 +2,8 @@ const { app, BrowserWindow, BrowserView } = require('electron')
 
 const createWindow = () => {
   const win = new BrowserWindow({
-    width: 1324,
-    height: 992
+    width: 1300,
+    height: 900
   })
 
   win.setMenu(null)
@@ -13,12 +13,22 @@ const createWindow = () => {
     const view = new BrowserView()
     view.webContents.loadFile("/home/boraa/Documents/Projects/Certificates/az204/0001_00001.html")
     
-    const bound = win.getBounds()
-    const height = 55
-    view.setBounds({ x: 0, y: height, width: bound.width, height: bound.height - height });
+    resizeView(view)
     
     win.addBrowserView(view)
   })
+
+  win.on('resize', () => {
+    win.getBrowserViews().forEach((view) => {
+      resizeView(view)
+    })
+  })
+
+  function resizeView(view) {
+    const bound = win.getBounds();
+    const height = 55
+    view.setBounds({ x: 0, y: height, width: bound.width, height: bound.height - height })
+  }
 }
 
 app.whenReady().then(() => {
