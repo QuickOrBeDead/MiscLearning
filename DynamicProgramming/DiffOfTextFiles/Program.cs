@@ -24,7 +24,7 @@
 }
 
 
-static IList<string> GenerateDiffList(string[] s1, string[] s2)
+static IList<string> GenerateDiffList(string[] s1, string[] s2, int line)
 {
     int[,] lp = PrepareLCSArray(s1, s2);
 
@@ -44,12 +44,20 @@ static IList<string> GenerateDiffList(string[] s1, string[] s2)
         } 
         else if (j > 0 && (i == 0 || lp[i, j - 1] >= lp[i - 1, j]))
         {
-            diff.Add("+" + s2[j - 1]);
+            if (line == 2) 
+            {
+                diff.Add("+" + s2[j - 1]);
+            }
+           
             j--;
         }
         else if (i > 0 && (j == 0 || lp[i, j - 1] < lp[i - 1, j]))
         {
-            diff.Add("-" + s1[i - 1]);
+            if (line == 1)
+            {
+                diff.Add("-" + s1[i - 1]);
+            }
+
             i--;
         }
         else
@@ -57,8 +65,6 @@ static IList<string> GenerateDiffList(string[] s1, string[] s2)
             break;
         }
     }
-
-    diff.Reverse();
 
     return diff;
 }
@@ -87,13 +93,13 @@ static void GenerateDiffListForTextFile(Diff diff)
         } 
         else if (j > 0 && (i == 0 || lp[i, j - 1] >= lp[i - 1, j]))
         {
-            diff.Diffs.Add(new DiffInfo { File = 2, Line1 = i - 1, Line2 = j - 1 });
+            diff.Diffs.Add(new DiffInfo { File = 2, Line1 = i - 1, Line2 = j - 1, WordDiff = GenerateDiffList(t1.Lines[i - 1].Text.Split(' '), t2.Lines[j - 1].Text.Split(' '), 2) });
 
             j--;
         }
         else if (i > 0 && (j == 0 || lp[i, j - 1] < lp[i - 1, j]))
         {
-            diff.Diffs.Add(new DiffInfo { File = 1, Line1 = i - 1, Line2 = j - 1 });
+            diff.Diffs.Add(new DiffInfo { File = 1, Line1 = i - 1, Line2 = j - 1, WordDiff = GenerateDiffList(t1.Lines[i - 1].Text.Split(' '), t2.Lines[j - 1].Text.Split(' '), 1) });
 
             i--;
         }
@@ -101,6 +107,31 @@ static void GenerateDiffListForTextFile(Diff diff)
         {
             break;
         }
+    }
+}
+
+static void PrintDiff(IList<string> diff)
+{
+    for (int i = diff.Count - 1; i >= 0; i--)
+    {
+        var s = diff[i];
+        if (s.StartsWith("-", StringComparison.InvariantCultureIgnoreCase))
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.Write(s[1..]);
+        }
+        else if (s.StartsWith("+", StringComparison.InvariantCultureIgnoreCase))
+        {
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.Write(s[1..]);
+        }
+        else
+        {
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.Write(s);
+        }
+
+        Console.Write(' ');
     }
 }
 
@@ -123,12 +154,14 @@ for (int i = diff.Diffs.Count - 1; i >= 0; i--)
     if (d.File == 1)
     {
         Console.ForegroundColor = ConsoleColor.Red;
-        Console.Write(diff.File1.Lines[d.Line1].Text);
+        Console.Write("- ");
+        PrintDiff(d.WordDiff);
     }
     else if (d.File == 2)
     {
         Console.ForegroundColor = ConsoleColor.Green;
-        Console.Write(diff.File2.Lines[d.Line2].Text);
+        Console.Write("+ ");
+        PrintDiff(d.WordDiff);
     }
     else
     {
@@ -150,7 +183,7 @@ class DiffInfo
 
     public int Line2 { get; set; }
 
-    public IList<string> WordDiff { get; set; }
+    public IList<string> WordDiff { get; set; } = new List<string>();
 }
 
 class Diff
