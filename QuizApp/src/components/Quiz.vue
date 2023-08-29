@@ -1,76 +1,29 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { Question, Quiz, Answer } from '../types'
+import { QuizDb } from '../db/QuizDb';
 
 
-const quiz: Quiz = {
-  title: "Quiz 1",
-  questions: [
-    {
-      text: "What is the capital of France?",
-      questionType: "SingleChoice",
-      answers: [{
-                  text: "Paris",
-                  isCorrect: true
-                }, 
-                {
-                  text: "Rome",
-                  isCorrect: false
-                }, 
-                {
-                  text: "Madrid",
-                  isCorrect: false
-                }]
-    },
-    {
-      text: "1 + 1 = ?",
-      questionType: "SingleChoice",
-      answers: [{
-                  text: "1",
-                  isCorrect: false
-                }, 
-                {
-                  text: "2",
-                  isCorrect: true
-                }, 
-                {
-                  text: "3",
-                  isCorrect: false
-                }]
-    },
-    {
-      text: "Which of the following 2 answers are true?",
-      questionType: "MultipleChoice",
-      answers: [{
-                  text: "1 + 1 = 2",
-                  isCorrect: true
-                }, 
-                {
-                  text: "2 + 2 = 5",
-                  isCorrect: false
-                }, 
-                {
-                  text: "2 + 2 = 4",
-                  isCorrect: true
-                }]
-    }
-  ]
-}
-
-const title = ref<string>()
+const quiz = ref<Quiz>();
 const question = ref<Question>()
 const questionIndex = ref<number>(0)
 
+const quizDb = new QuizDb()
+
 onMounted(() => {
-  title.value = quiz.title
+  quizDb.init(() => {
+    quizDb.getQuiz(1, q => {
+      quiz.value = q
   
-  loadQuestion()
+      loadQuestion()
+    })
+  })
 })
 
 function loadQuestion() {
   const index = questionIndex.value
-  if (index >= 0 && index < quiz.questions.length) {
-    question.value = quiz.questions[index]
+  if (quiz.value && index >= 0 && index < quiz.value.questions.length) {
+    question.value = quiz.value.questions[index]
   }
 }
 
@@ -98,7 +51,7 @@ function onAnswerSelected(i: number, event: any) {
 }
 
 function next() {
-  if (questionIndex.value < quiz.questions.length - 1) {
+  if (quiz.value && questionIndex.value < quiz.value.questions.length - 1) {
     questionIndex.value++
   }
 
@@ -116,13 +69,25 @@ function prev() {
 </script>
 
 <template>
-   <div class="container mt-5">
+   <div class="container mt-5" v-if="quiz">
       <div class="row">
-        <div class="col"><h1>{{ title }}</h1></div>
+        <div class="col"><h1>{{ quiz.title }}</h1></div>
       </div>
 
       <div class="row">
-        <div class="col"><h3>Question {{ questionIndex + 1 }}: {{ question?.text }}</h3></div>
+        <div class="col">
+          <div class="btn-container">
+            <button type="button" class="btn btn-primary" :disabled="questionIndex === 0" @click="prev">Previous</button>
+            <button type="button" class="btn btn-primary" :disabled="questionIndex === quiz.questions.length - 1" @click="next">Next</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col">
+          <h3>Question {{ questionIndex + 1 }}:</h3>
+          <p v-html="question?.text"></p>
+        </div>
       </div>
 
       <div class="row">
@@ -164,7 +129,6 @@ function prev() {
   cursor: pointer;
 }
 
-
 .form-check input[type="radio"]:checked + label,
 .form-check input[type="checkbox"]:checked + label,
 .answer-option input[type="radio"]:checked ~ .answer-option-label,
@@ -176,6 +140,7 @@ function prev() {
 .btn-container {
   display: flex;
   justify-content: space-between;
-  margin-top: 20px;
+  margin-top: 15px;
+  margin-bottom: 15px;
 }
 </style>
