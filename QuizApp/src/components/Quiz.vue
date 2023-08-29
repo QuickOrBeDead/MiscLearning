@@ -8,6 +8,7 @@ const quiz: Quiz = {
   questions: [
     {
       text: "What is the capital of France?",
+      questionType: "SingleChoice",
       answers: [{
                   text: "Paris",
                   isCorrect: true
@@ -23,6 +24,7 @@ const quiz: Quiz = {
     },
     {
       text: "1 + 1 = ?",
+      questionType: "SingleChoice",
       answers: [{
                   text: "1",
                   isCorrect: false
@@ -34,6 +36,22 @@ const quiz: Quiz = {
                 {
                   text: "3",
                   isCorrect: false
+                }]
+    },
+    {
+      text: "Which of the following 2 answers are true?",
+      questionType: "MultipleChoice",
+      answers: [{
+                  text: "1 + 1 = 2",
+                  isCorrect: true
+                }, 
+                {
+                  text: "2 + 2 = 5",
+                  isCorrect: false
+                }, 
+                {
+                  text: "2 + 2 = 4",
+                  isCorrect: true
                 }]
     }
   ]
@@ -56,10 +74,27 @@ function loadQuestion() {
   }
 }
 
-function onAnswerSelected(i: number) {
+function onAnswerSelected(i: number, event: any) {
   const answers = question.value?.answers as Answer[]
-  answers.forEach(x => x.isSelected = false)
-  answers[i].isSelected = true
+  const answer = answers[i]
+
+  if (question.value?.questionType === 'SingleChoice') {
+    answers.forEach(x => x.isSelected = false)
+    answer.isSelected = true
+  } else {
+    if (answer.isSelected) {
+      answer.isSelected = false
+    } else {
+      const maxChoiceCount = answers.reduce((n, a) => a.isCorrect ? n + 1 : n, 0)
+      const currentChoiceCount = answers.reduce((n, a) => a.isSelected ? n + 1 : n, 0)
+
+      if (currentChoiceCount < maxChoiceCount) {
+        answer.isSelected = true
+      } else {
+        event.target.checked= false
+      }
+    }
+  }
 }
 
 function next() {
@@ -86,7 +121,7 @@ function prev() {
       <div class="mb-4">
         <h3>Question {{ questionIndex + 1 }}: {{ question?.text }}</h3>
         <div class="form-check" v-for="(answer, index) in question?.answers" :key="index">
-          <input class="answer-option-input form-check-input" type="radio" name="answer" :id="'a' + index" :value="index" :checked="answer.isSelected" @change="onAnswerSelected(index)">
+          <input class="answer-option-input form-check-input" :type="question?.questionType === 'MultipleChoice' ? 'checkbox' : 'radio'" name="answer" :id="'a' + index" :value="index" :checked="answer.isSelected" @change="event => onAnswerSelected(index, event)">
           <label class="answer-option-label form-check-label" :for="'a' + index">
             {{ answer.text }}
           </label>
@@ -116,12 +151,14 @@ function prev() {
 }
 
 
-.form-check input[type="radio"]:checked + label {
+.form-check input[type="radio"]:checked + label,
+.form-check input[type="checkbox"]:checked + label {
   background-color: #007bff;
   color: white;
 }
 
-.answer-option input[type="radio"]:checked ~ .answer-option-label {
+.answer-option input[type="radio"]:checked ~ .answer-option-label,
+.answer-option input[type="checkbox"]:checked ~ .answer-option-label {
   background-color: #007bff;
   color: white;
 }
