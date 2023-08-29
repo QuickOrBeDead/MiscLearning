@@ -117,20 +117,34 @@ function prev() {
 
 <template>
    <div class="container mt-5">
-      <h1>{{ title }}</h1>
-      <div class="mb-4">
-        <h3>Question {{ questionIndex + 1 }}: {{ question?.text }}</h3>
-        <div class="form-check" v-for="(answer, index) in question?.answers" :key="index">
-          <input class="answer-option-input form-check-input" :type="question?.questionType === 'MultipleChoice' ? 'checkbox' : 'radio'" name="answer" :id="'a' + index" :value="index" :checked="answer.isSelected" @change="event => onAnswerSelected(index, event)">
-          <label class="answer-option-label form-check-label" :for="'a' + index">
-            {{ answer.text }}
-          </label>
+      <div class="row">
+        <div class="col"><h1>{{ title }}</h1></div>
+      </div>
+
+      <div class="row">
+        <div class="col"><h3>Question {{ questionIndex + 1 }}: {{ question?.text }}</h3></div>
+      </div>
+
+      <div class="row">
+        <div class="col">
+          <div class="mb-4">
+            <div class="form-check" v-for="(answer, index) in question?.answers" :key="index">
+              <input class="answer-option-input form-check-input" :type="question?.questionType === 'MultipleChoice' ? 'checkbox' : 'radio'" name="answer" :id="'a' + index" :value="index" :checked="answer.isSelected" @change="event => onAnswerSelected(index, event)">
+              <label class="answer-option-label form-check-label" :for="'a' + index">
+                {{ answer.text }}
+              </label>
+            </div>
+          </div>
         </div>
       </div>
       
-      <div class="btn-container">
-        <button type="button" class="btn btn-primary" :disabled="questionIndex === 0" @click="prev">Previous</button>
-        <button type="button" class="btn btn-primary" :disabled="questionIndex === quiz.questions.length - 1" @click="next">Next</button>
+      <div class="row">
+        <div class="col">
+          <div class="btn-container">
+            <button type="button" class="btn btn-primary" :disabled="questionIndex === 0" @click="prev">Previous</button>
+            <button type="button" class="btn btn-primary" :disabled="questionIndex === quiz.questions.length - 1" @click="next">Next</button>
+          </div>
+        </div>
       </div>
   </div>
 </template>
@@ -152,11 +166,7 @@ function prev() {
 
 
 .form-check input[type="radio"]:checked + label,
-.form-check input[type="checkbox"]:checked + label {
-  background-color: #007bff;
-  color: white;
-}
-
+.form-check input[type="checkbox"]:checked + label,
 .answer-option input[type="radio"]:checked ~ .answer-option-label,
 .answer-option input[type="checkbox"]:checked ~ .answer-option-label {
   background-color: #007bff;
