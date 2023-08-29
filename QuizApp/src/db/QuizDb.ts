@@ -32,15 +32,14 @@ export class QuizDb
         }  
     }
 
-    getQuizes(callback: (t: Quiz[]) => void) {
+    getQuizes(callback: (t: { id: number, title: string }[]) => void) {
         const s = this.getQuizStore("readonly")
-        const result: Quiz[] = []
+        const result: { id: number, title: string }[] = []
 
         s.openCursor().onsuccess = function(event: any) {  
             var cursor = event.target.result;  
             if (cursor) {  
-                console.log(cursor.key)
-                result.push(cursor.value)
+                result.push({ id: cursor.key, title: cursor.value.title})
                 cursor.continue() 
             }  
             else {  

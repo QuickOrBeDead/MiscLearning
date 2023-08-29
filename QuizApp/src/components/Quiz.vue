@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
+import { useRoute } from 'vue-router'
 import { Question, Quiz, Answer } from '../types'
-import { QuizDb } from '../db/QuizDb';
+import { QuizDb } from '../db/QuizDb'
 
-
+const route = useRoute()
 const quiz = ref<Quiz>();
 const question = ref<Question>()
 const questionIndex = ref<number>(0)
@@ -12,7 +13,8 @@ const quizDb = new QuizDb()
 
 onMounted(() => {
   quizDb.init(() => {
-    quizDb.getQuiz(1, q => {
+    const id = parseInt(route.params.id as string, 10)
+    quizDb.getQuiz(id, q => {
       quiz.value = q
   
       loadQuestion()
