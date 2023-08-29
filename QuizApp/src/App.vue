@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import Question from './components/Question.vue'
+import Quiz from './components/Quiz.vue'
 </script>
 
 <template>
-  <Question />
+  <Quiz />
 </template>

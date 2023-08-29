@@ -82,7 +82,7 @@ function prev() {
 
 <template>
    <div class="container mt-5">
-    <h1>{{ title }}</h1>
+      <h1>{{ title }}</h1>
       <div class="mb-4">
         <h3>Question {{ questionIndex + 1 }}: {{ question?.text }}</h3>
         <div class="form-check" v-for="(answer, index) in question?.answers" :key="index">
