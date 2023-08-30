@@ -8,6 +8,7 @@ const route = useRoute()
 const quiz = ref<Quiz>();
 const question = ref<Question>()
 const questionIndex = ref<number>(0)
+const showAnswer = ref<boolean>()
 
 const quizDb = new QuizDb()
 
@@ -26,6 +27,7 @@ function loadQuestion() {
   const index = questionIndex.value
   if (quiz.value && index >= 0 && index < quiz.value.questions.length) {
     question.value = quiz.value.questions[index]
+    showAnswer.value = areAllChoicesMade(question.value.answers)
   }
 }
 
@@ -36,20 +38,37 @@ function onAnswerSelected(i: number, event: any) {
   if (question.value?.questionType === 'SingleChoice') {
     answers.forEach(x => x.isSelected = false)
     answer.isSelected = true
+    showAnswer.value = true
   } else {
     if (answer.isSelected) {
       answer.isSelected = false
     } else {
-      const maxChoiceCount = answers.reduce((n, a) => a.isCorrect ? n + 1 : n, 0)
-      const currentChoiceCount = answers.reduce((n, a) => a.isSelected ? n + 1 : n, 0)
+      const maxChoiceCount = getMaxChoiceCount(answers)
+      const currentChoiceCount = getCurrentChoiceCount(answers)
 
       if (currentChoiceCount < maxChoiceCount) {
         answer.isSelected = true
+
+        if (currentChoiceCount + 1 === maxChoiceCount) {
+          showAnswer.value = true
+        }
       } else {
-        event.target.checked= false
+        event.target.checked = false
       }
     }
   }
+}
+
+function getMaxChoiceCount(answers: Answer[]) {
+  return answers.reduce((n, a) => a.isCorrect ? n + 1 : n, 0)
+}
+
+function getCurrentChoiceCount(answers: Answer[]) {
+  return answers.reduce((n, a) => a.isSelected ? n + 1 : n, 0)
+}
+
+function areAllChoicesMade(answers: Answer[]) {
+  return getMaxChoiceCount(answers) === getCurrentChoiceCount(answers)
 }
 
 function next() {
@@ -96,9 +115,9 @@ function prev() {
         <div class="col">
           <div class="mb-4">
             <div class="form-check" v-for="(answer, index) in question?.answers" :key="index">
-              <input class="answer-option-input form-check-input" :type="question?.questionType === 'MultipleChoice' ? 'checkbox' : 'radio'" name="answer" :id="'a' + index" :value="index" :checked="answer.isSelected" @change="event => onAnswerSelected(index, event)">
-              <label class="answer-option-label form-check-label" :for="'a' + index">
-                {{ answer.text }}
+              <input class="answer-option-input form-check-input" :disabled="showAnswer" :type="question?.questionType === 'MultipleChoice' ? 'checkbox' : 'radio'" name="answer" :id="'a' + index" :value="index" :checked="answer.isSelected" @change="event => onAnswerSelected(index, event)">
+              <label class="answer-option-label form-check-label" :class="showAnswer && answer.isCorrect ? 'bg-success text-white' : (showAnswer && !answer.isCorrect && answer.isSelected ? 'bg-danger text-white' : '')" :for="'a' + index">
+                {{ answer.text }} <i class="bi float-end" v-if="showAnswer" :class="answer.isCorrect ? 'bi-check-circle-fill' : 'bi-x-circle-fill'"></i>
               </label>
             </div>
           </div>
@@ -132,9 +151,7 @@ function prev() {
 }
 
 .form-check input[type="radio"]:checked + label,
-.form-check input[type="checkbox"]:checked + label,
-.answer-option input[type="radio"]:checked ~ .answer-option-label,
-.answer-option input[type="checkbox"]:checked ~ .answer-option-label {
+.form-check input[type="checkbox"]:checked + label {
   background-color: #007bff;
   color: white;
 }
@@ -144,5 +161,9 @@ function prev() {
   justify-content: space-between;
   margin-top: 15px;
   margin-bottom: 15px;
+}
+
+.answer-option-input[disabled]~.form-check-label {
+  opacity: 0.9;
 }
 </style>
