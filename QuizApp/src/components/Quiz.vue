@@ -9,6 +9,8 @@ const quiz = ref<Quiz>();
 const question = ref<Question>()
 const questionIndex = ref<number>(0)
 const showAnswer = ref<boolean>()
+const totalPoints = ref<number>(0)
+const currentPoints = ref<number>(0)
 
 const quizDb = new QuizDb()
 
@@ -18,6 +20,7 @@ onMounted(() => {
     quizDb.getQuiz(id, q => {
       quiz.value = q
   
+      calculateTotalPoints()
       loadQuestion()
     })
   })
@@ -39,6 +42,8 @@ function onAnswerSelected(i: number, event: any) {
     answers.forEach(x => x.isSelected = false)
     answer.isSelected = true
     showAnswer.value = true
+
+    calculateCurrentPoints()
   } else {
     if (answer.isSelected) {
       answer.isSelected = false
@@ -51,6 +56,8 @@ function onAnswerSelected(i: number, event: any) {
 
         if (currentChoiceCount + 1 === maxChoiceCount) {
           showAnswer.value = true
+
+          calculateCurrentPoints()
         }
       } else {
         event.target.checked = false
@@ -69,6 +76,18 @@ function getCurrentChoiceCount(answers: Answer[]) {
 
 function areAllChoicesMade(answers: Answer[]) {
   return getMaxChoiceCount(answers) === getCurrentChoiceCount(answers)
+}
+
+function calculateTotalPoints() {
+  if (quiz.value) {
+    totalPoints.value = quiz.value.questions.reduce((i, q) => i + q.answers.reduce((j, a) => a.isCorrect ? j + 1 : j, 0), 0)
+  }
+}
+
+function calculateCurrentPoints() {
+  if (quiz.value) {
+    currentPoints.value = quiz.value.questions.reduce((i, q) => i + q.answers.reduce((j, a) => a.isSelected && a.isCorrect ? j + 1 : j, 0), 0)
+  }
 }
 
 function next() {
@@ -92,7 +111,10 @@ function prev() {
 <template>
    <div class="container mt-5" v-if="quiz">
       <div class="row">
-        <div class="col"><h1>{{ quiz.title }}</h1></div>
+        <div class="col">
+          <h1>{{ quiz.title }}</h1>
+          <p>Points: {{ currentPoints }} / {{ totalPoints }}</p>
+        </div>
       </div>
 
       <div class="row">
