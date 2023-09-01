@@ -11,6 +11,8 @@ const questionIndex = ref<number>(0)
 const showAnswer = ref<boolean>()
 const totalPoints = ref<number>(0)
 const currentPoints = ref<number>(0)
+const totalQuestions = ref<number>(0)
+const correctQuestions = ref<number>(0)
 
 const quizDb = new QuizDb()
 
@@ -19,8 +21,10 @@ onMounted(() => {
     const id = parseInt(route.params.id as string, 10)
     quizDb.getQuiz(id, q => {
       quiz.value = q
+      totalQuestions.value = q.questions.length
   
       calculateTotalPoints()
+      calculateCurrentPoints()
       loadQuestion()
     })
   })
@@ -70,6 +74,10 @@ function getMaxChoiceCount(answers: Answer[]) {
   return answers.reduce((n, a) => a.isCorrect ? n + 1 : n, 0)
 }
 
+function getSelectedAndCorrectChoiceCount(answers: Answer[]) {
+  return answers.reduce((n, a) => a.isSelected && a.isCorrect ? n + 1 : n, 0)
+}
+
 function getCurrentChoiceCount(answers: Answer[]) {
   return answers.reduce((n, a) => a.isSelected ? n + 1 : n, 0)
 }
@@ -87,6 +95,14 @@ function calculateTotalPoints() {
 function calculateCurrentPoints() {
   if (quiz.value) {
     currentPoints.value = quiz.value.questions.reduce((i, q) => i + q.answers.reduce((j, a) => a.isSelected && a.isCorrect ? j + 1 : j, 0), 0)
+    correctQuestions.value = quiz.value.questions.reduce((i, q) => i + (getSelectedAndCorrectChoiceCount(q.answers) === getMaxChoiceCount(q.answers) ? 1 : 0), 0)
+
+    quiz.value.questions.forEach(function(q, i) {
+        if (getSelectedAndCorrectChoiceCount(q.answers) === getMaxChoiceCount(q.answers))
+        { 
+          console.log(i)
+        }
+    })
   }
 }
 
@@ -114,6 +130,7 @@ function prev() {
         <div class="col">
           <h1>{{ quiz.title }}</h1>
           <p>Points: {{ currentPoints }} / {{ totalPoints }}</p>
+          <p>Correct Answers: {{ correctQuestions }} / {{ totalQuestions }}</p>
         </div>
       </div>
 
