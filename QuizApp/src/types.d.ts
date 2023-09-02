@@ -5,7 +5,7 @@ export interface Quiz {
 
 export interface Question {
     text: string;
-    answers: Answer[];
+    answers: Answer[] | AnswerTemplate;
     questionType: QuestionType;
 }
 
@@ -15,5 +15,20 @@ export interface Answer {
     isSelected?: boolean;
 }
 
-export type QuestionType =  'SingleChoice' | 'MultipleChoice'
+export interface AnswerTemplate {
+    parts: AnswerTemplatePart[];
+    groups: AnswerGroup[];
+}
+
+export interface AnswerTemplatePart {
+    value: string | number;
+    type: AnswerTemplatePartType;
+}
+
+export interface AnswerGroup {
+    answers: Answer[];
+}
+
+export type QuestionType =  'SingleChoice' | 'MultipleChoice' | 'AnswerTemplate'
+export type AnswerTemplatePartType = 'Text' | 'AnswerGroup'
   

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
-import { Question, Quiz, Answer } from '../types'
+import { Question, Quiz, Answer, AnswerTemplate, QuestionType } from '../types'
 import { QuizDb } from '../db/QuizDb'
 
 const route = useRoute()
@@ -34,15 +34,45 @@ function loadQuestion() {
   const index = questionIndex.value
   if (quiz.value && index >= 0 && index < quiz.value.questions.length) {
     question.value = quiz.value.questions[index]
-    showAnswer.value = areAllChoicesMade(question.value.answers)
+    showAnswer.value = areAllChoicesMade(question.value.questionType, question.value.answers)
+  }
+}
+
+function onAnswerTemplateAnswerGroupChange(answerGroup: number, event: any) {
+  if (!question.value) {
+    return;
+  }
+
+  const answers = question.value.answers as AnswerTemplate;
+  const groupAnswers = answers.groups[answerGroup].answers
+
+  if (event.target && event.target.value !== '') {
+    const answer = groupAnswers[event.target.value as number]
+    groupAnswers.forEach(x => x.isSelected = false)
+    answer.isSelected = true
+
+    const maxChoiceCount = getMaxChoiceCount(question.value.questionType, answers)
+    const currentChoiceCount = getCurrentChoiceCount(question.value.questionType, answers)
+
+    if (currentChoiceCount === maxChoiceCount) {
+      showAnswer.value = true
+
+      calculateCurrentPoints()
+    }
+  } else {
+    groupAnswers.forEach(x => x.isSelected = false)
   }
 }
 
 function onAnswerSelected(i: number, event: any) {
-  const answers = question.value?.answers as Answer[]
+  if (!question.value) {
+    return;
+  }
+
+  const answers = question.value.answers as Answer[]
   const answer = answers[i]
 
-  if (question.value?.questionType === 'SingleChoice') {
+  if (question.value.questionType === 'SingleChoice') {
     answers.forEach(x => x.isSelected = false)
     answer.isSelected = true
     showAnswer.value = true
@@ -52,8 +82,8 @@ function onAnswerSelected(i: number, event: any) {
     if (answer.isSelected) {
       answer.isSelected = false
     } else {
-      const maxChoiceCount = getMaxChoiceCount(answers)
-      const currentChoiceCount = getCurrentChoiceCount(answers)
+      const maxChoiceCount = getMaxChoiceCount(question.value.questionType, answers)
+      const currentChoiceCount = getCurrentChoiceCount(question.value.questionType, answers)
 
       if (currentChoiceCount < maxChoiceCount) {
         answer.isSelected = true
@@ -70,39 +100,51 @@ function onAnswerSelected(i: number, event: any) {
   }
 }
 
-function getMaxChoiceCount(answers: Answer[]) {
-  return answers.reduce((n, a) => a.isCorrect ? n + 1 : n, 0)
+function getMaxChoiceCount(questionType: QuestionType, answers: Answer[] | AnswerTemplate) {
+  if (questionType === 'AnswerTemplate')
+  {
+    return (answers as AnswerTemplate).groups.reduce((n, g) => n + g.answers.reduce((n1, a) => a.isCorrect ? n1 + 1 : n1, 0), 0)
+  }
+
+  return (answers as Answer[]).reduce((n, a) => a.isCorrect ? n + 1 : n, 0)
 }
 
-function getSelectedAndCorrectChoiceCount(answers: Answer[]) {
-  return answers.reduce((n, a) => a.isSelected && a.isCorrect ? n + 1 : n, 0)
+function getSelectedAndCorrectChoiceCount(questionType: QuestionType, answers: Answer[] | AnswerTemplate) {
+  if (questionType === 'AnswerTemplate')
+  {
+    return (answers as AnswerTemplate).groups.reduce((n, g) => n + g.answers.reduce((n1, a) => a.isSelected && a.isCorrect ? n1 + 1 : n1, 0), 0)
+  }
+
+  return (answers as Answer[]).reduce((n, a) => a.isSelected && a.isCorrect ? n + 1 : n, 0)
 }
 
-function getCurrentChoiceCount(answers: Answer[]) {
-  return answers.reduce((n, a) => a.isSelected ? n + 1 : n, 0)
+function getCurrentChoiceCount(questionType: QuestionType, answers: Answer[] | AnswerTemplate) {
+  if (questionType === 'AnswerTemplate') 
+  {
+    return (answers as AnswerTemplate).groups.reduce((n, g) => n + g.answers.reduce((n1, a) => a.isSelected ? n1 + 1 : n1, 0), 0)
+  }
+
+  return (answers as Answer[]).reduce((n, a) => a.isSelected ? n + 1 : n, 0)
 }
 
-function areAllChoicesMade(answers: Answer[]) {
-  return getMaxChoiceCount(answers) === getCurrentChoiceCount(answers)
+function areAllChoicesMade(questionType: QuestionType, answers: Answer[] | AnswerTemplate) {
+  return getMaxChoiceCount(questionType, answers) === getCurrentChoiceCount(questionType, answers)
+}
+
+function isCorrect(questionType: QuestionType, answers: Answer[] | AnswerTemplate) {
+  return getSelectedAndCorrectChoiceCount(questionType, answers) === getMaxChoiceCount(questionType, answers)
 }
 
 function calculateTotalPoints() {
   if (quiz.value) {
-    totalPoints.value = quiz.value.questions.reduce((i, q) => i + q.answers.reduce((j, a) => a.isCorrect ? j + 1 : j, 0), 0)
+    totalPoints.value = quiz.value.questions.reduce((i, q) => i + getMaxChoiceCount(q.questionType, q.answers), 0)
   }
 }
 
 function calculateCurrentPoints() {
   if (quiz.value) {
-    currentPoints.value = quiz.value.questions.reduce((i, q) => i + q.answers.reduce((j, a) => a.isSelected && a.isCorrect ? j + 1 : j, 0), 0)
-    correctQuestions.value = quiz.value.questions.reduce((i, q) => i + (getSelectedAndCorrectChoiceCount(q.answers) === getMaxChoiceCount(q.answers) ? 1 : 0), 0)
-
-    quiz.value.questions.forEach(function(q, i) {
-        if (getSelectedAndCorrectChoiceCount(q.answers) === getMaxChoiceCount(q.answers))
-        { 
-          console.log(i)
-        }
-    })
+    currentPoints.value = quiz.value.questions.reduce((i, q) => i + getSelectedAndCorrectChoiceCount(q.questionType, q.answers), 0)
+    correctQuestions.value = quiz.value.questions.reduce((i, q) => i + (isCorrect(q.questionType, q.answers) ? 1 : 0), 0)
   }
 }
 
@@ -153,12 +195,29 @@ function prev() {
       <div class="row">
         <div class="col">
           <div class="mb-4">
-            <div class="form-check" v-for="(answer, index) in question?.answers" :key="index">
-              <input class="answer-option-input form-check-input" :disabled="showAnswer" :type="question?.questionType === 'MultipleChoice' ? 'checkbox' : 'radio'" name="answer" :id="'a' + index" :value="index" :checked="answer.isSelected" @change="event => onAnswerSelected(index, event)">
-              <label class="answer-option-label form-check-label" :class="showAnswer && answer.isCorrect ? 'bg-success text-white' : (showAnswer && !answer.isCorrect && answer.isSelected ? 'bg-danger text-white' : '')" :for="'a' + index">
-                {{ answer.text }} <i class="bi float-end" v-if="showAnswer" :class="answer.isCorrect ? 'bi-check-circle-fill' : 'bi-x-circle-fill'"></i>
-              </label>
-            </div>
+            <template v-if="question?.questionType === 'AnswerTemplate'">
+              <template v-for="part in (question?.answers as AnswerTemplate).parts">
+                <template v-if="part.type === 'Text'">
+                  <b>{{ part.value }}</b>
+                </template>
+                <template v-if="part.type === 'AnswerGroup'">
+                  <select :disabled="showAnswer" :class="showAnswer ? (isCorrect('SingleChoice', (question?.answers as AnswerTemplate).groups[part.value as number].answers) ? 'answer-select-correct' : 'answer-select-incorrect') : ''" @change="event => onAnswerTemplateAnswerGroupChange(part.value as number, event)">
+                    <option value="">Choose..</option>
+                    <template v-for="(answer, index) in (question?.answers as AnswerTemplate).groups[part.value as number].answers">
+                      <option :value="index">{{ answer.text }}</option>
+                    </template>
+                  </select>
+                </template>
+              </template>
+            </template>
+            <template v-if="question?.questionType === 'SingleChoice' || question?.questionType === 'MultipleChoice'">
+              <div class="form-check" v-for="(answer, index) in (question?.answers as Answer[])" :key="index">
+                <input class="answer-option-input form-check-input" :disabled="showAnswer" :type="question?.questionType === 'MultipleChoice' ? 'checkbox' : 'radio'" name="answer" :id="'a' + index" :value="index" :checked="answer.isSelected" @change="event => onAnswerSelected(index, event)">
+                <label class="answer-option-label form-check-label" :class="showAnswer && answer.isCorrect ? 'bg-success text-white' : (showAnswer && !answer.isCorrect && answer.isSelected ? 'bg-danger text-white' : '')" :for="'a' + index">
+                  {{ answer.text }} <i class="bi float-end" v-if="showAnswer" :class="answer.isCorrect ? 'bi-check-circle-fill' : 'bi-x-circle-fill'"></i>
+                </label>
+              </div>
+            </template> 
           </div>
         </div>
       </div>
@@ -204,5 +263,15 @@ function prev() {
 
 .answer-option-input[disabled]~.form-check-label {
   opacity: 0.9;
+}
+
+.answer-select-correct {
+  background-color: #2f9264;
+  color: white;
+}
+
+.answer-select-incorrect {
+  background-color: #df4857;
+  color: white;
 }
 </style>
