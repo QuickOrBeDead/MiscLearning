@@ -1,4 +1,4 @@
-import { Quiz } from "../types";
+import { IQuiz } from "../types";
 
 export class QuizDb
 {
@@ -48,7 +48,7 @@ export class QuizDb
         }
     }
 
-    addQuiz(quiz: Quiz, callback: (t: number) => void) {
+    addQuiz(quiz: IQuiz, callback: (t: number) => void) {
         const s = this.getQuizStore("readwrite")
         const addRequest = s.add(quiz)
         addRequest.onsuccess = function(event: any) {
@@ -61,11 +61,11 @@ export class QuizDb
         }
     }
 
-    getQuiz(id: number, callback: (t: Quiz) => void) {
+    getQuiz(id: number, callback: (t: IQuiz) => void) {
         const s = this.getQuizStore("readonly")
         const getRequest = s.get(id)
         getRequest.onsuccess = function(event: any) {
-            const item = event.target.result as Quiz
+            const item = event.target.result as IQuiz
             callback(item)
         }
     }

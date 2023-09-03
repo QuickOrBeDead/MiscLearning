@@ -1,23 +1,23 @@
-import { Quiz } from "./types";
+import { IQuiz } from "./types";
 
-const quiz: Quiz = {
-    "title": "test",
+const quiz: IQuiz = {
+    "title": "test 1",
     "questions": [
         {
             "text": "HOTSPOT -<br>You have developed a Web App for your company. The Web App provides services and must run in multiple regions.<br>You want to be notified whenever the Web App uses more than 85 percent of the available CPU cores over a 5 minute period. Your solution must minimize costs.<br>Which command should you use? To answer, select the appropriate settings in the answer area.<br>NOTE: Each correct selection is worth one point.",
-            "answers": {
+            "optionsContainer": {
                 "parts": [
                     {
                     "type": "Text",
                     "value": "az monitor metrics alert create -n myAlert -g myResourceGroup --scopes targetResourcelD --condition \""
                 }, {
-                    "type": "AnswerGroup",
+                    "type": "OptionsGroup",
                     "value": 0
                 }, {
                     "type": "Text",
                     "value": "> 85\""
                 }, {
-                    "type": "AnswerGroup",
+                    "type": "OptionsGroup",
                     "value": 1
                 }, {
                     "type": "Text",
@@ -25,40 +25,68 @@ const quiz: Quiz = {
                 }],
                 "groups": [
                     {
-                        "answers": [
-                            {
-                                "text": "CPU Usage",
-                                "isCorrect": false
-                            },
-                            {
-                                "text": "Percentage CPU",
-                                "isCorrect": false
-                            },
-                            {
-                                "text": "avg Percentage CPU",
-                                "isCorrect": true
-                            }
-                        ]
+                        "itemsContainer": {
+                            "options": [
+                                {
+                                    "text": "CPU Usage",
+                                    "isCorrect": false
+                                },
+                                {
+                                    "text": "Percentage CPU",
+                                    "isCorrect": false
+                                },
+                                {
+                                    "text": "avg Percentage CPU",
+                                    "isCorrect": true
+                                }
+                            ]
+                        }
                     },
                     {
-                        "answers": [
-                            {
-                                "text": "--window-size",
-                                "isCorrect": true
-                            },
-                            {
-                                "text": "--evaluation-frequency",
-                                "isCorrect": false
-                            },
-                            {
-                                "text": "--auto-mitigate",
-                                "isCorrect": false
-                            }
-                        ]
+                        "itemsContainer": {
+                            "options": [
+                                {
+                                    "text": "--window-size",
+                                    "isCorrect": true
+                                },
+                                {
+                                    "text": "--evaluation-frequency",
+                                    "isCorrect": false
+                                },
+                                {
+                                    "text": "--auto-mitigate",
+                                    "isCorrect": false
+                                }
+                            ]
+                        }
                     }
                 ]
             },
-            "questionType": "AnswerTemplate"
+            "questionType": "TemplatedChoice"
+        },
+        {
+            "text": "You have two Hyper-V hosts named Host1 and Host2. Host1 has an Azure virtual machine named VM1 that was deployed by using a custom Azure Resource<br>Manager template.<br>You need to move VM1 to Host2.<br>What should you do?<br>",
+            "optionsContainer": {
+                "options": [
+                    {
+                        "text": "From the Update management blade, click Enable.",
+                        "isCorrect": false
+                    },
+                    {
+                        "text": "From the Overview blade, move VM1 to a different subscription.",
+                        "isCorrect": false
+                    },
+                    {
+                        "text": "From the Redeploy blade, click Redeploy.",
+                        "isCorrect": true
+                    },
+                    {
+                        "text": "From the Profile blade, modify the usage location.",
+                        "isCorrect": false
+                    }
+                ]
+            },
+            "questionType": "SimpleChoice"
         }
     ]
 }

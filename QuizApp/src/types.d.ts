@@ -1,34 +1,46 @@
-export interface Quiz {
+export interface IQuiz {
     title: string;
-    questions: Question[];
+    questions: IQuestion[];
 }
 
-export interface Question {
+export interface IQuestion {
     text: string;
-    answers: Answer[] | AnswerTemplate;
+    optionsContainer: ISimpleOptionsContainer | IOptionTemplate;
     questionType: QuestionType;
 }
 
-export interface Answer {
+export interface IOption {
     text: string;
     isCorrect: boolean;
     isSelected?: boolean;
 }
 
-export interface AnswerTemplate {
-    parts: AnswerTemplatePart[];
-    groups: AnswerGroup[];
+export interface IOptionTemplate {
+    parts: IOptionTemplatePart[];
+    groups: IOptionGroup[];
 }
 
-export interface AnswerTemplatePart {
+export interface IOptionTemplatePart {
     value: string | number;
-    type: AnswerTemplatePartType;
+    type: OptionTemplatePartType;
 }
 
-export interface AnswerGroup {
-    answers: Answer[];
+export interface IOptionGroup {
+    itemsContainer: ISimpleOptionsContainer;
 }
 
-export type QuestionType =  'SingleChoice' | 'MultipleChoice' | 'AnswerTemplate'
-export type AnswerTemplatePartType = 'Text' | 'AnswerGroup'
+export interface IOptionsContainer {
+    getCorrectAnswerCount(): number;
+
+    getSelectedCorrectAnswerCount(): number;
+
+    getCount(fn: (a: Option) => boolean): number;
+}
+
+export interface ISimpleOptionsContainer {
+    options: IOption[];
+}
+
+export type QuestionType =  'SimpleChoice' | 'TemplatedChoice'
+export type OptionTemplatePartType = 'Text' | 'OptionsGroup'
   
