@@ -1,8 +1,8 @@
-import { IOption, IOptionGroup, IOptionTemplate, IOptionTemplatePart, IOptionsContainer, IQuestion, IQuiz, ISimpleOptionsContainer, QuestionType, OptionTemplatePartType, IDragDropOptionsContainer } from "./types";
+import { IOption, IOptionGroup, IOptionTemplate, IOptionTemplatePart, IOptionsContainer, IQuestion, IQuiz, ISimpleOptionsContainer, QuestionType, OptionTemplatePartType, IDragDropOptionsContainer } from "./types"
 
 export class Quiz implements IQuiz {
-    title: string;
-    questions: Question[];
+    title: string
+    questions: Question[]
 
     constructor(title: string, questions: Question[]) {
         this.title = title
@@ -179,8 +179,8 @@ export class SimpleOptionsContainer implements ISimpleOptionsContainer, IOptions
 }
 
 export class TemplatedOptionsContainer implements IOptionTemplate, IOptionsContainer {
-    parts: OptionTemplatePart[];
-    groups: OptionGroup[];
+    parts: OptionTemplatePart[]
+    groups: OptionGroup[]
 
     constructor(parts: OptionTemplatePart[], groups: OptionGroup[]) {
         this.parts = parts
@@ -282,8 +282,8 @@ export class DragDropOptionsContainer implements IOptionsContainer {
 }
 
 export class OptionTemplatePart implements IOptionTemplatePart {
-    value: string | number;
-    type: OptionTemplatePartType;
+    value: string | number
+    type: OptionTemplatePartType
 
     constructor(value: string | number, type: OptionTemplatePartType) {
         this.value = value
@@ -296,7 +296,7 @@ export class OptionTemplatePart implements IOptionTemplatePart {
 }
 
 export class OptionGroup implements IOptionGroup {
-    itemsContainer: SimpleOptionsContainer;
+    itemsContainer: SimpleOptionsContainer
 
     constructor(itemsContainer: SimpleOptionsContainer) {
         this.itemsContainer = itemsContainer        
