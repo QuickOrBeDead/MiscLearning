@@ -4,6 +4,7 @@ import { useRoute } from 'vue-router'
 import { Question, Quiz, SimpleOptionsContainer, TemplatedOptionsContainer, DragDropOptionsContainer } from '../classes'
 import { QuizDb } from '../db/QuizDb'
 import draggable from 'vuedraggable'
+import { Modal } from 'bootstrap'
 
 const route = useRoute()
 const quiz = ref<Quiz>();
@@ -16,8 +17,11 @@ const totalQuestions = ref<number>(0)
 const correctQuestions = ref<number>(0)
 
 const quizDb = new QuizDb()
+let editQuestionModal: Modal
 
 onMounted(() => {
+  editQuestionModal = new Modal('#editQuestionModal')
+
   quizDb.init(() => {
     const id = parseInt(route.params.id as string, 10)
     quizDb.getQuiz(id, q => {
@@ -101,6 +105,10 @@ function prev() {
 
   loadQuestion()
 }
+
+function editQuestion() {
+  editQuestionModal.show()
+}
 </script>
 
 <template>
@@ -124,7 +132,7 @@ function prev() {
 
       <div class="row">
         <div class="col">
-          <h3>Question {{ questionIndex + 1 }}:</h3>
+          <h3>Question {{ questionIndex + 1 }}: <button type="button" class="btn btn-primary" @click="editQuestion">Edit</button></h3>
           <p v-html="question?.text"></p>
         </div>
       </div>
@@ -196,6 +204,46 @@ function prev() {
             <button type="button" class="btn btn-primary" :disabled="questionIndex === quiz.questions.length - 1" @click="next">Next</button>
           </div>
         </div>
+      </div>
+  </div>
+
+  <div class="modal fade modal-xl" id="editQuestionModal" tabindex="-1" aria-labelledby="editQuestionTitle" aria-hidden="true">
+      <div class="modal-dialog">
+          <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title" id="editQuestionTitle">Edit Question</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form>
+              <template v-if="question?.questionType === 'DragDropChoice'">
+                <template v-for="(option, index) in (question?.optionsContainer as DragDropOptionsContainer).options">
+                  <div class="row g-3 mb-2">
+                    <div class="col-sm-9">
+                      <input type="text" v-model="option.text" class="form-control" :placeholder="`Option ${index}`">
+                    </div>
+                    <div class="col-sm-1">
+                      <div class="form-check">
+                        <input type="checkbox" v-model="option.isCorrect" class="form-check-input" :id="`is-correct-${index}`">
+                        <label class="form-check-label" :for="`is-correct-${index}`">Correct</label>
+                      </div>
+                    </div>
+                    <div class="col-sm">
+                      <input type="number" v-model="option.order" class="form-control" placeholder="Order" min="0">
+                    </div>
+                  </div>
+                </template>
+              </template>
+              <template v-if="question?.questionType === 'TemplatedChoice'">
+              </template>
+              <template v-if="question?.questionType === 'SimpleChoice'">
+              </template> 
+            </form>
+          </div>
+          <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          </div>
+          </div>
       </div>
   </div>
 </template>
