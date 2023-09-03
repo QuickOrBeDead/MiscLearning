@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
-import { Question, Quiz, SimpleOptionsContainer, TemplatedOptionsContainer } from '../classes'
+import { Question, Quiz, SimpleOptionsContainer, TemplatedOptionsContainer, DragDropOptionsContainer } from '../classes'
 import { QuizDb } from '../db/QuizDb'
+import draggable from 'vuedraggable'
 
 const route = useRoute()
 const quiz = ref<Quiz>();
@@ -54,6 +55,17 @@ function onOptionSelected(i: number, event: any) {
   }
 
   onChoiceCompleted((question.value.optionsContainer as SimpleOptionsContainer).selectChoice(i), event)
+}
+
+function onCompleteDragDropChoice() {
+  if (!question.value) {
+    return;
+  }
+
+  (question.value.optionsContainer as DragDropOptionsContainer).completeChoice()
+
+  showAnswer.value = true
+  calculateCurrentPoints()
 }
 
 function onChoiceCompleted(selectChoiceResult: { isSelected: boolean; allSelected: boolean; }, event: any) {
@@ -120,10 +132,40 @@ function prev() {
       <div class="row">
         <div class="col">
           <div class="mb-4">
+            <template v-if="question?.questionType === 'DragDropChoice'">
+              <div class="row">
+                <div class="col-6">
+                  <h3>Actions</h3>
+                  <draggable
+                    class="list-group"
+                    :list="(question?.optionsContainer as DragDropOptionsContainer).candidateOptions"
+                    :disabled="showAnswer"
+                    group="choice"
+                    itemKey="text">
+                    <template #item="{ element }">
+                      <div class="list-group-item" :class="showAnswer ? (element.isCorrect ? 'bg-success text-white' : '') : ''">{{ element.text }} <span v-if="showAnswer && element.order !== undefined" class="badge bg-secondary">{{ element.order + 1 }}</span></div>
+                    </template>
+                  </draggable>
+                </div>
+                <div class="col-6">
+                  <h3>Answer <button type="button" class="btn btn-success" :disabled="showAnswer" @click="onCompleteDragDropChoice">Complete</button></h3>
+                  <draggable
+                    class="list-group"
+                    :list="(question?.optionsContainer as DragDropOptionsContainer).selectedOptions"
+                    :disabled="showAnswer"
+                    group="choice"
+                    itemKey="text">
+                    <template #item="{ element }">
+                      <div class="list-group-item" :class="showAnswer ? (element.isSelectedCorrect() ? 'bg-success text-white' : 'bg-danger text-white') : ''">{{ element.text }} <span v-if="showAnswer && element.order !== undefined" class="badge bg-secondary">{{ element.order + 1 }}</span></div>
+                    </template>
+                  </draggable>
+                </div>
+              </div>
+            </template>
             <template v-if="question?.questionType === 'TemplatedChoice'">
               <template v-for="part in (question?.optionsContainer as TemplatedOptionsContainer).parts">
                 <template v-if="part.type === 'Text'">
-                  <b>{{ part.value }}</b>
+                  <b v-html="part.value"></b>
                 </template>
                 <template v-if="part.type === 'OptionsGroup'">
                   <select :disabled="showAnswer" :class="showAnswer ? ((question?.optionsContainer as TemplatedOptionsContainer).groups[part.value as number].itemsContainer.isCorrect() ? 'answer-select-correct' : 'answer-select-incorrect') : ''" @change="event => onOptionGroupSelected(part.value as number, event)">

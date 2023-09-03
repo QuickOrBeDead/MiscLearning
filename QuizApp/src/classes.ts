@@ -1,4 +1,4 @@
-import { IOption, IOptionGroup, IOptionTemplate, IOptionTemplatePart, IOptionsContainer, IQuestion, IQuiz, ISimpleOptionsContainer, QuestionType, OptionTemplatePartType } from "./types";
+import { IOption, IOptionGroup, IOptionTemplate, IOptionTemplatePart, IOptionsContainer, IQuestion, IQuiz, ISimpleOptionsContainer, QuestionType, OptionTemplatePartType, IDragDropOptionsContainer } from "./types";
 
 export class Quiz implements IQuiz {
     title: string;
@@ -30,11 +30,11 @@ export class Quiz implements IQuiz {
 }
 
 export class Question implements IQuestion {
-    text: string;
-    optionsContainer: SimpleOptionsContainer | TemplatedOptionsContainer;
-    questionType: QuestionType;
+    text: string
+    optionsContainer: SimpleOptionsContainer | TemplatedOptionsContainer | DragDropOptionsContainer
+    questionType: QuestionType
 
-    constructor(text: string, optionsContainer: SimpleOptionsContainer | TemplatedOptionsContainer, questionType: QuestionType) {
+    constructor(text: string, optionsContainer: SimpleOptionsContainer | TemplatedOptionsContainer | DragDropOptionsContainer, questionType: QuestionType) {
         this.text = text
         this.optionsContainer = optionsContainer
         this.questionType = questionType
@@ -61,11 +61,13 @@ export class Question implements IQuestion {
     }
 
     static map(q: IQuestion): Question {
-        let optionsContainer: SimpleOptionsContainer | TemplatedOptionsContainer
+        let optionsContainer: SimpleOptionsContainer | TemplatedOptionsContainer | DragDropOptionsContainer
         if (q.questionType === 'SimpleChoice') {
             optionsContainer = SimpleOptionsContainer.map(q.optionsContainer as ISimpleOptionsContainer)
         } else if (q.questionType === 'TemplatedChoice') {
             optionsContainer = TemplatedOptionsContainer.map(q.optionsContainer as IOptionTemplate)
+        } else if (q.questionType === 'DragDropChoice') {
+            optionsContainer = DragDropOptionsContainer.map(q.optionsContainer as IDragDropOptionsContainer)
         } else {
             throw new Error(`unknown questionType: ${q.questionType}`)
         }
@@ -75,27 +77,29 @@ export class Question implements IQuestion {
 }
 
 export class Option implements IOption {
-    text: string;
-    isCorrect: boolean;
-    isSelected?: boolean;
+    text: string
+    isCorrect: boolean
+    isSelected?: boolean
+    order?: number
+    selectedOrder?: number
 
-    constructor(text: string, isCorrect: boolean, isSelected?: boolean) {
+    constructor(text: string, isCorrect: boolean, order?: number) {
         this.text = text
         this.isCorrect = isCorrect
-        this.isSelected = isSelected
+        this.order = order
     }
 
     isSelectedCorrect(): boolean {
-        return this.isCorrect && !!this.isSelected
+        return this.isCorrect && !!this.isSelected && (this.order === undefined || this.order === this.selectedOrder)
     }
 
     static map(o: IOption): Option {
-        return new Option(o.text, o.isCorrect, o.isSelected)
+        return new Option(o.text, o.isCorrect, o.order)
     }
 }
 
 export class SimpleOptionsContainer implements ISimpleOptionsContainer, IOptionsContainer {
-    options: Option[];
+    options: Option[]
 
     constructor(options: Option[]) {
         this.options = options
@@ -226,6 +230,54 @@ export class TemplatedOptionsContainer implements IOptionTemplate, IOptionsConta
         o.groups.forEach(x => groups.push(OptionGroup.map(x)))
 
         return new TemplatedOptionsContainer(parts, groups)
+    }
+}
+
+export class DragDropOptionsContainer implements IOptionsContainer {
+    isOrdered: boolean
+    options: Option[]
+    candidateOptions: Option[] = []
+    selectedOptions: Option[] = []
+
+    constructor(options: Option[], isOrdered: boolean) {
+        this.isOrdered = isOrdered  
+        this.options = options
+        this.candidateOptions.push(...options)
+    }
+
+    getCorrectAnswerCount() {
+        return this.getCount(a => a.isCorrect)
+    }
+
+    getSelectedAnswerCount() {
+        return this.getCount(a => !!a.isSelected)
+    }
+
+    getSelectedCorrectAnswerCount() {
+        if (this.isOrdered) {
+            return this.getCount(a => a.isSelectedCorrect() && a.order === a.selectedOrder)
+        } else {
+            return this.getCount(a => a.isSelectedCorrect())
+        }
+    }
+
+    completeChoice() {
+        for (let i = 0; i < this.selectedOptions.length; i++) {
+            const option = this.selectedOptions[i]
+            option.isSelected = true
+            option.selectedOrder = i 
+        }
+    }
+
+    getCount(fn: (a: Option) => boolean) {
+        return this.options.reduce((n, a) => fn(a) ? n + 1 : n, 0)
+    }
+
+    static map(c: IDragDropOptionsContainer): DragDropOptionsContainer {
+        const options: Option[] = []
+        c.options.forEach(x => options.push(Option.map(x)))
+
+        return new DragDropOptionsContainer(options, c.isOrdered)
     }
 }
 

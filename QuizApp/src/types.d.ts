@@ -1,46 +1,49 @@
 export interface IQuiz {
-    title: string;
-    questions: IQuestion[];
+    title: string
+    questions: IQuestion[]
 }
 
 export interface IQuestion {
-    text: string;
-    optionsContainer: ISimpleOptionsContainer | IOptionTemplate;
-    questionType: QuestionType;
+    text: string
+    optionsContainer: ISimpleOptionsContainer | IOptionTemplate | IDragDropOptionsContainer
+    questionType: QuestionType
 }
 
 export interface IOption {
-    text: string;
-    isCorrect: boolean;
-    isSelected?: boolean;
+    text: string
+    isCorrect: boolean
+    isSelected?: boolean
+    order?: number
 }
 
 export interface IOptionTemplate {
-    parts: IOptionTemplatePart[];
-    groups: IOptionGroup[];
+    parts: IOptionTemplatePart[]
+    groups: IOptionGroup[]
 }
 
 export interface IOptionTemplatePart {
-    value: string | number;
-    type: OptionTemplatePartType;
+    value: string | number
+    type: OptionTemplatePartType
 }
 
 export interface IOptionGroup {
-    itemsContainer: ISimpleOptionsContainer;
+    itemsContainer: ISimpleOptionsContainer
 }
 
 export interface IOptionsContainer {
-    getCorrectAnswerCount(): number;
-
-    getSelectedCorrectAnswerCount(): number;
-
-    getCount(fn: (a: Option) => boolean): number;
+    getCorrectAnswerCount(): number
+    getSelectedCorrectAnswerCount(): number
 }
 
 export interface ISimpleOptionsContainer {
-    options: IOption[];
+    options: IOption[]
 }
 
-export type QuestionType =  'SimpleChoice' | 'TemplatedChoice'
+export interface IDragDropOptionsContainer {
+    isOrdered: boolean
+    options: IOption[]
+}
+
+export type QuestionType =  'SimpleChoice' | 'TemplatedChoice' | 'DragDropChoice'
 export type OptionTemplatePartType = 'Text' | 'OptionsGroup'
   
