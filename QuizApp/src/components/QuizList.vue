@@ -4,20 +4,20 @@ import { QuizDb } from '../db/QuizDb'
 import { Modal } from 'bootstrap'
 
 const quizDb = new QuizDb()
-const quizes = ref<{ id: number, title: string }[]>()
+const quizzes = ref<{ id: number, title: string }[]>()
 const quizJson = ref<string>()
 let addQuizModal: Modal
 
 onMounted(() => {
   addQuizModal = new Modal('#addQuizModal')
   quizDb.init(() => {
-    loadQuizes()
+    loadQuizzes()
   })
 })
 
-function loadQuizes() {
-    quizDb.getQuizes(q => {
-        quizes.value = q
+function loadQuizzes() {
+    quizDb.getQuizzes(q => {
+        quizzes.value = q
     })
 }
 
@@ -29,7 +29,7 @@ function addQuiz() {
     if (quizJson.value) {
         quizDb.addQuiz(JSON.parse(quizJson.value), () => {
             addQuizModal?.hide()
-            loadQuizes()
+            loadQuizzes()
         })
     }
 }
@@ -43,12 +43,12 @@ function addQuiz() {
         </div>
         <div class="row">
             <div class="col">
-                <h1>Quizes</h1>
+                <h1>Quizzes</h1>
             </div>
         </div>
         <div class="row">
             <div class="col">
-                <ul v-for="q in quizes">
+                <ul v-for="q in quizzes">
                     <li><router-link :to="{ name: 'Quiz', params: { id: q.id } }">{{ q.title }}</router-link></li>
                 </ul>
             </div>

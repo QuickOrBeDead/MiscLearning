@@ -32,7 +32,7 @@ export class QuizDb
         }  
     }
 
-    getQuizes(callback: (t: { id: number, title: string }[]) => void) {
+    getQuizzes(callback: (t: { id: number, title: string }[]) => void) {
         const s = this.getQuizStore("readonly")
         const result: { id: number, title: string }[] = []
 

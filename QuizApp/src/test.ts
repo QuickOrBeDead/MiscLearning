@@ -187,3 +187,5 @@ const quiz: IQuiz = {
         }
     ]
 }
+
+console.log(quiz)
