@@ -27,6 +27,16 @@ export class Quiz implements IQuiz {
 
         return new Quiz(q.title, questions)
     }
+
+    static export(q: Quiz): IQuiz {
+        const questions: IQuestion[] = []
+        q.questions.forEach(x => questions.push(Question.export(x)))
+
+        return {
+            title: q.title,
+            questions: questions
+        }
+    }
 }
 
 export class Question implements IQuestion {
@@ -74,6 +84,25 @@ export class Question implements IQuestion {
         
         return new Question(q.text, optionsContainer, q.questionType)
     }
+
+    static export(q: Question): IQuestion {
+        let optionsContainer: ISimpleOptionsContainer | IOptionTemplate | IDragDropOptionsContainer
+        if (q.questionType === 'SimpleChoice') {
+            optionsContainer = SimpleOptionsContainer.export(q.optionsContainer as SimpleOptionsContainer)
+        } else if (q.questionType === 'TemplatedChoice') {
+            optionsContainer = TemplatedOptionsContainer.export(q.optionsContainer as TemplatedOptionsContainer)
+        } else if (q.questionType === 'DragDropChoice') {
+            optionsContainer = DragDropOptionsContainer.export(q.optionsContainer as DragDropOptionsContainer)
+        } else {
+            throw new Error(`unknown questionType: ${q.questionType}`)
+        }
+
+        return {
+            text: q.text,
+            optionsContainer: optionsContainer,
+            questionType: q.questionType
+        }
+    }
 }
 
 export class Option implements IOption {
@@ -95,6 +124,14 @@ export class Option implements IOption {
 
     static map(o: IOption): Option {
         return new Option(o.text, o.isCorrect, o.order)
+    }
+
+    static export(o: Option): IOption {
+        return {
+            text: o.text,
+            isCorrect: o.isCorrect,
+            order: o.order
+        }
     }
 }
 
@@ -168,14 +205,23 @@ export class SimpleOptionsContainer implements ISimpleOptionsContainer, IOptions
         }
 
         return { isSelected: false, allSelected: false }
-      }
+    }
 
-      static map(c: ISimpleOptionsContainer): SimpleOptionsContainer {
+    static map(c: ISimpleOptionsContainer): SimpleOptionsContainer {
         const options: Option[] = []
         c.options.forEach(x => options.push(Option.map(x)))
 
         return new SimpleOptionsContainer(options)
-      }
+    }
+
+    static export(c: SimpleOptionsContainer): ISimpleOptionsContainer {
+        const options: IOption[] = []
+        c.options.forEach(x => options.push(Option.export(x)))
+
+        return {
+            options: options
+        }
+    }
 }
 
 export class TemplatedOptionsContainer implements IOptionTemplate, IOptionsContainer {
@@ -231,6 +277,19 @@ export class TemplatedOptionsContainer implements IOptionTemplate, IOptionsConta
 
         return new TemplatedOptionsContainer(parts, groups)
     }
+
+    static export(o: TemplatedOptionsContainer): IOptionTemplate {
+        const parts: IOptionTemplatePart[] = []
+        const groups: IOptionGroup[] = []
+
+        o.parts.forEach(x => parts.push(OptionTemplatePart.export(x)))
+        o.groups.forEach(x => groups.push(OptionGroup.export(x)))
+
+        return {
+            groups: groups,
+            parts: parts
+        }
+    }
 }
 
 export class DragDropOptionsContainer implements IOptionsContainer {
@@ -279,6 +338,16 @@ export class DragDropOptionsContainer implements IOptionsContainer {
 
         return new DragDropOptionsContainer(options, c.isOrdered)
     }
+
+    static export(c: DragDropOptionsContainer): IDragDropOptionsContainer {
+        const options: IOption[] = []
+        c.options.forEach(x => options.push(Option.export(x)))
+
+        return {
+            options: options,
+            isOrdered: c.isOrdered
+        }
+    }
 }
 
 export class OptionTemplatePart implements IOptionTemplatePart {
@@ -293,6 +362,13 @@ export class OptionTemplatePart implements IOptionTemplatePart {
     static map(o: IOptionTemplatePart): OptionTemplatePart {
         return new OptionTemplatePart(o.value, o.type)
     }
+
+    static export(o: OptionTemplatePart): IOptionTemplatePart {
+        return {
+            type: o.type,
+            value: o.value
+        }
+    }
 }
 
 export class OptionGroup implements IOptionGroup {
@@ -304,5 +380,11 @@ export class OptionGroup implements IOptionGroup {
 
     static map(o: IOptionGroup): OptionGroup {
         return new OptionGroup(SimpleOptionsContainer.map(o.itemsContainer))
+    }
+
+    static export(o: OptionGroup): IOptionGroup {
+        return {
+           itemsContainer: SimpleOptionsContainer.export(o.itemsContainer) 
+        }
     }
 }

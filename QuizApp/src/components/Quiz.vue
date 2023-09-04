@@ -16,12 +16,15 @@ const totalPoints = ref<number>(0)
 const currentPoints = ref<number>(0)
 const totalQuestions = ref<number>(0)
 const correctQuestions = ref<number>(0)
+const quizJson = ref<string>()
 
 const quizDb = new QuizDb()
 let editQuestionModal: Modal
+let exportQuizModal: Modal
 
 onMounted(() => {
   editQuestionModal = new Modal('#editQuestionModal')
+  exportQuizModal = new Modal('#exportQuizModal')
 
   quizDb.init(() => {
     const id = parseInt(route.params.id as string, 10)
@@ -186,13 +189,23 @@ function onQuestionTypeChange(event: any, q: Question | undefined) {
       break;
   }
 }
+
+function exportQuiz() {
+  if (!quiz.value) {
+    return
+  }
+
+  quizJson.value = JSON.stringify(Quiz.export(quiz.value))
+
+  exportQuizModal.show()
+}
 </script>
 
 <template>
    <div class="container mt-5" v-if="quiz">
       <div class="row">
         <div class="col">
-          <h1>{{ quiz.title }}</h1>
+          <h1>{{ quiz.title }} <button type="button" class="btn btn-primary" @click="exportQuiz">Export</button></h1>
           <p>Points: {{ currentPoints }} / {{ totalPoints }}</p>
           <p>Correct Answers: {{ correctQuestions }} / {{ totalQuestions }}</p>
         </div>
@@ -458,6 +471,27 @@ function onQuestionTypeChange(event: any, q: Question | undefined) {
           </div>
       </div>
   </div>
+
+  <div class="modal fade" id="exportQuizModal" tabindex="-1" aria-labelledby="exportQuizModalTitle" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exportQuizModalTitle">Add Quiz</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="mb-3">
+                        <textarea class="form-control" cols="30" rows="10" placeholder="Enter quiz json" v-model="quizJson"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+            </div>
+        </div>
+    </div>
 </template>
 
 <style scoped>
