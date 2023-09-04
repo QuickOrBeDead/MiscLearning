@@ -5,6 +5,7 @@ import { Question, Quiz, SimpleOptionsContainer, TemplatedOptionsContainer, Drag
 import { QuizDb } from '../db/QuizDb'
 import draggable from 'vuedraggable'
 import { Modal } from 'bootstrap'
+import { QuestionType } from '../types'
 
 const route = useRoute()
 const quiz = ref<Quiz>();
@@ -155,6 +156,36 @@ function addNewOptionGroup(g: OptionGroup[]) {
 function removeOptionGroup(g: OptionGroup[], i: number) {
   g.splice(i, 1)
 }
+
+function onQuestionTypeChange(event: any, q: Question | undefined) {
+  if (!q) {
+    return
+  }
+
+  const questionType = event.target?.value as QuestionType | undefined
+  if (!questionType) {
+    return
+  } 
+
+  q.questionType = questionType
+
+  switch (questionType) {
+    case 'SimpleChoice':
+      q.optionsContainer = new SimpleOptionsContainer([])
+      break;
+
+    case 'TemplatedChoice':
+      q.optionsContainer = new TemplatedOptionsContainer([], [])
+      break;
+
+    case 'DragDropChoice':
+      q.optionsContainer = new DragDropOptionsContainer([], false)
+      break;
+  
+    default:
+      break;
+  }
+}
 </script>
 
 <template>
@@ -262,19 +293,38 @@ function removeOptionGroup(g: OptionGroup[], i: number) {
           </div>
           <div class="modal-body">
             <form>
+              <div class="mb-3 row">
+                <label for="question-type-dropdown" class="col-sm-2 col-form-label">Question Type</label>
+                <div class="col-sm-10">
+                  <select class="form-select" id="question-type-dropdown" v-if="question" v-model="question.questionType" @change="event => onQuestionTypeChange(event, question)">
+                    <option disabled value="">Choose..</option>
+                    <option value="SimpleChoice">Simple</option>
+                    <option value="DragDropChoice">Drag Drop</option>
+                    <option value="TemplatedChoice">Templated</option>
+                  </select>
+                </div>
+              </div>
               <template v-if="question?.questionType === 'DragDropChoice'">
+                <div class="row g-3 mb-2">
+                  <div class="col-sm">
+                    <div class="form-check">
+                      <input type="checkbox" v-model="(question?.optionsContainer as DragDropOptionsContainer).isOrdered" class="form-check-input" id="drag-drop-is-ordered-cb">
+                      <label class="form-check-label" for="drag-drop-is-ordered-cb">Ordered</label>
+                    </div>
+                  </div>
+                </div>
                 <template v-for="(option, index) in (question?.optionsContainer as DragDropOptionsContainer).options">
                   <div class="row g-3 mb-2">
                     <div class="col-sm-9">
                       <input type="text" v-model="option.text" class="form-control" :placeholder="`Option ${index}`">
                     </div>
-                    <div class="col-sm-1">
+                    <div class="col-sm">
                       <div class="form-check">
                         <input type="checkbox" v-model="option.isCorrect" class="form-check-input" :id="`is-correct-${index}`">
                         <label class="form-check-label" :for="`is-correct-${index}`">Correct</label>
                       </div>
                     </div>
-                    <div class="col-sm">
+                    <div class="col-sm" :hidden="!(question?.optionsContainer as DragDropOptionsContainer).isOrdered">
                       <input type="number" v-model="option.order" class="form-control" placeholder="Order" min="0">
                     </div>
                     <div class="col-sm">
