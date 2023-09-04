@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
-import { Question, Quiz, SimpleOptionsContainer, TemplatedOptionsContainer, DragDropOptionsContainer, Option } from '../classes'
+import { Question, Quiz, SimpleOptionsContainer, TemplatedOptionsContainer, DragDropOptionsContainer, Option, OptionTemplatePart, OptionGroup } from '../classes'
 import { QuizDb } from '../db/QuizDb'
 import draggable from 'vuedraggable'
 import { Modal } from 'bootstrap'
@@ -123,13 +123,37 @@ function addNewDragDropOption(c: DragDropOptionsContainer) {
   c.selectedOptions = []
 }
 
-function removeSimpleChoiceOption(c: SimpleOptionsContainer, i: number) {
-  c.options.splice(i, 1)
+function removeSimpleChoiceOption(o: Option[], i: number) {
+  o.splice(i, 1)
 }
 
-function addNewSimpleChoiceOption(c: SimpleOptionsContainer) {
+function addNewSimpleChoiceOption(o: Option[]) {
   const option = new Option('', false)
-  c.options.push(option)
+  o.push(option)
+}
+
+function onOptionTemplatePartTypeChange(event: any, part: OptionTemplatePart) {
+  if (event.target?.value === 'OptionsGroup') {
+    part.value = 0
+  } else if (event.target?.value === 'Text') {
+    part.value = ''
+  }
+}
+
+function addNewTemplatePart(p: OptionTemplatePart[]) {
+  p.push(new OptionTemplatePart('', 'Text'))
+}
+
+function removeTemplatePart(p: OptionTemplatePart[], i: number) {
+  p.splice(i, 1)
+}
+
+function addNewOptionGroup(g: OptionGroup[]) {
+  g.push(new OptionGroup(new SimpleOptionsContainer([])))
+}
+
+function removeOptionGroup(g: OptionGroup[], i: number) {
+  g.splice(i, 1)
 }
 </script>
 
@@ -270,6 +294,83 @@ function addNewSimpleChoiceOption(c: SimpleOptionsContainer) {
                 </div>
               </template>
               <template v-if="question?.questionType === 'TemplatedChoice'">
+                <h5>Parts</h5>
+                <template v-for="(part, index) in (question?.optionsContainer as TemplatedOptionsContainer).parts">
+                  <h6>Part {{ index }}</h6>
+                  <div class="row g-3 mb-2">
+                    <div class="col-sm-9">
+                      <input :type="part.type === 'Text' ? 'text' : 'number'" v-model="part.value" class="form-control" :placeholder="`Part ${index}`">
+                    </div>
+                    <div class="col-sm-2">
+                      <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" v-model="part.type" value="Text" :name="`tmpl-option-part-type-rb-${index}`" :id="`tmpl-option-part-type-rb-${index}-1`" @change="event => onOptionTemplatePartTypeChange(event, part)">
+                        <label class="form-check-label" :for="`tmpl-option-part-type-rb-${index}-1`">Text</label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" v-model="part.type" value="OptionsGroup" :name="`tmpl-option-part-type-rb-${index}`" :id="`tmpl-option-part-type-rb-${index}-2`" @change="event => onOptionTemplatePartTypeChange(event, part)">
+                        <label class="form-check-label" :for="`tmpl-option-part-type-rb-${index}-2`">Group</label>
+                      </div>
+                    </div>
+                    <div class="col-sm">
+                      <button type="button" class="btn btn-secondary float-end" @click="() => removeTemplatePart((question?.optionsContainer as TemplatedOptionsContainer).parts, index)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+                          <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5Zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5Zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6Z"></path>
+                          <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1ZM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118ZM2.5 3h11V2h-11v1Z"></path>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                </template>
+                <div class="row">
+                  <div class="col">
+                    <button type="button" class="btn btn-primary float-end" @click="() => addNewTemplatePart((question?.optionsContainer as TemplatedOptionsContainer).parts)">Add Part</button>
+                  </div>
+                </div>
+
+                <h5>Groups</h5>
+                <template v-for="(group, index) in (question?.optionsContainer as TemplatedOptionsContainer).groups">
+                  <h6>
+                    Group {{ index }}
+
+                    <button type="button" class="btn btn-secondary" @click="() => removeOptionGroup((question?.optionsContainer as TemplatedOptionsContainer).groups, index)">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+                        <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5Zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5Zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6Z"></path>
+                        <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1ZM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118ZM2.5 3h11V2h-11v1Z"></path>
+                      </svg>
+                    </button>
+                  </h6>
+                  <template v-for="(option, index) in group.itemsContainer.options">
+                    <div class="row g-3 mb-2">
+                      <div class="col-sm-10">
+                        <input type="text" v-model="option.text" class="form-control" :placeholder="`Option ${index}`">
+                      </div>
+                      <div class="col-sm-1">
+                        <div class="form-check">
+                          <input type="checkbox" v-model="option.isCorrect" class="form-check-input" :id="`is-correct-${index}`">
+                          <label class="form-check-label" :for="`is-correct-${index}`">Correct</label>
+                        </div>
+                      </div>
+                      <div class="col-sm">
+                        <button type="button" class="btn btn-secondary float-end" @click="() => removeSimpleChoiceOption(group.itemsContainer.options, index)">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+                            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5Zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5Zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6Z"></path>
+                            <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1ZM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118ZM2.5 3h11V2h-11v1Z"></path>
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                  </template>
+                  <div class="row">
+                    <div class="col">
+                      <button type="button" class="btn btn-primary float-end" @click="() => addNewSimpleChoiceOption(group.itemsContainer.options)">Add Option</button>
+                    </div>
+                  </div>
+                </template>
+                <div class="row mt-2">
+                  <div class="col">
+                    <button type="button" class="btn btn-primary float-end" @click="() => addNewOptionGroup((question?.optionsContainer as TemplatedOptionsContainer).groups)">Add Group</button>
+                  </div>
+                </div>
               </template>
               <template v-if="question?.questionType === 'SimpleChoice'">
                 <template v-for="(option, index) in (question?.optionsContainer as SimpleOptionsContainer).options">
@@ -284,7 +385,7 @@ function addNewSimpleChoiceOption(c: SimpleOptionsContainer) {
                       </div>
                     </div>
                     <div class="col-sm">
-                      <button type="button" class="btn btn-secondary float-end" @click="() => removeSimpleChoiceOption(question?.optionsContainer as SimpleOptionsContainer, index)">
+                      <button type="button" class="btn btn-secondary float-end" @click="() => removeSimpleChoiceOption((question?.optionsContainer as SimpleOptionsContainer).options, index)">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
                           <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5Zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5Zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6Z"></path>
                           <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1ZM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118ZM2.5 3h11V2h-11v1Z"></path>
@@ -295,7 +396,7 @@ function addNewSimpleChoiceOption(c: SimpleOptionsContainer) {
                 </template>
                 <div class="row">
                   <div class="col">
-                    <button type="button" class="btn btn-primary float-end" @click="() => addNewSimpleChoiceOption(question?.optionsContainer as SimpleOptionsContainer)">Add</button>
+                    <button type="button" class="btn btn-primary float-end" @click="() => addNewSimpleChoiceOption((question?.optionsContainer as SimpleOptionsContainer).options)">Add</button>
                   </div>
                 </div>
               </template> 
