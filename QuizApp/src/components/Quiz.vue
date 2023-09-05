@@ -305,7 +305,11 @@ function exportQuiz() {
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-            <form>
+            <form v-if="question">
+              <div class="mb-3 row">
+                <label for="question-text" class="form-label">Question</label>
+                <textarea id="question-text" class="form-control" cols="30" rows="10" placeholder="Question Text" v-model="question.text"></textarea>
+              </div>
               <div class="mb-3 row">
                 <label for="question-type-dropdown" class="col-sm-2 col-form-label">Question Type</label>
                 <div class="col-sm-10">
@@ -321,12 +325,12 @@ function exportQuiz() {
                 <div class="row g-3 mb-2">
                   <div class="col-sm">
                     <div class="form-check">
-                      <input type="checkbox" v-model="(question?.optionsContainer as DragDropOptionsContainer).isOrdered" class="form-check-input" id="drag-drop-is-ordered-cb">
+                      <input type="checkbox" v-model="(question.optionsContainer as DragDropOptionsContainer).isOrdered" class="form-check-input" id="drag-drop-is-ordered-cb">
                       <label class="form-check-label" for="drag-drop-is-ordered-cb">Ordered</label>
                     </div>
                   </div>
                 </div>
-                <template v-for="(option, index) in (question?.optionsContainer as DragDropOptionsContainer).options">
+                <template v-for="(option, index) in (question.optionsContainer as DragDropOptionsContainer).options">
                   <div class="row g-3 mb-2">
                     <div class="col-sm-9">
                       <input type="text" v-model="option.text" class="form-control" :placeholder="`Option ${index}`">
@@ -337,7 +341,7 @@ function exportQuiz() {
                         <label class="form-check-label" :for="`is-correct-${index}`">Correct</label>
                       </div>
                     </div>
-                    <div class="col-sm" :hidden="!(question?.optionsContainer as DragDropOptionsContainer).isOrdered">
+                    <div class="col-sm" :hidden="!(question.optionsContainer as DragDropOptionsContainer).isOrdered">
                       <input type="number" v-model="option.order" class="form-control" placeholder="Order" min="0">
                     </div>
                     <div class="col-sm">
