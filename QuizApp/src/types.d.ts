@@ -7,6 +7,7 @@ export interface IQuestion {
     text: string
     optionsContainer: ISimpleOptionsContainer | IOptionTemplate | IDragDropOptionsContainer
     questionType: QuestionType
+    explanation?: string
 }
 
 export interface IOption {

@@ -43,11 +43,13 @@ export class Question implements IQuestion {
     text: string
     optionsContainer: SimpleOptionsContainer | TemplatedOptionsContainer | DragDropOptionsContainer
     questionType: QuestionType
+    explanation?: string
 
-    constructor(text: string, optionsContainer: SimpleOptionsContainer | TemplatedOptionsContainer | DragDropOptionsContainer, questionType: QuestionType) {
+    constructor(text: string, optionsContainer: SimpleOptionsContainer | TemplatedOptionsContainer | DragDropOptionsContainer, questionType: QuestionType, explanation?: string) {
         this.text = text
         this.optionsContainer = optionsContainer
         this.questionType = questionType
+        this.explanation = explanation
     }
 
     getCorrectAnswerCount() {
@@ -82,7 +84,7 @@ export class Question implements IQuestion {
             throw new Error(`unknown questionType: ${q.questionType}`)
         }
         
-        return new Question(q.text, optionsContainer, q.questionType)
+        return new Question(q.text, optionsContainer, q.questionType, q.explanation)
     }
 
     static export(q: Question): IQuestion {
@@ -100,7 +102,8 @@ export class Question implements IQuestion {
         return {
             text: q.text,
             optionsContainer: optionsContainer,
-            questionType: q.questionType
+            questionType: q.questionType,
+            explanation: q.explanation
         }
     }
 }

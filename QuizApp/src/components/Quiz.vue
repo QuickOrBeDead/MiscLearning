@@ -287,6 +287,13 @@ function exportQuiz() {
           </div>
         </div>
       </div>
+
+      <div v-if="showAnswer && question?.explanation !== undefined" class="row">
+        <div class="col">
+          <h3>Explanation</h3>
+          <div v-html="question?.explanation"></div>
+        </div>
+      </div>
       
       <div class="row">
         <div class="col">
@@ -309,7 +316,11 @@ function exportQuiz() {
               <form v-if="question">
                 <div class="mb-3 row">
                   <label for="question-text" class="form-label">Question</label>
-                  <textarea id="question-text" class="form-control" cols="30" rows="10" placeholder="Question Text" v-model="question.text"></textarea>
+                  <textarea id="question-text" class="form-control" cols="30" rows="3" placeholder="Question Text" v-model="question.text"></textarea>
+                </div>
+                <div class="mb-3 row">
+                  <label for="question-explanation" class="form-label">Question Explanation</label>
+                  <textarea id="question-explanation" class="form-control" cols="30" rows="3" placeholder="Question Explanation" v-model="question.explanation"></textarea>
                 </div>
                 <div class="mb-3 row">
                   <label for="question-type-dropdown" class="col-sm-2 col-form-label">Question Type</label>
