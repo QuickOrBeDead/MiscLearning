@@ -33,6 +33,18 @@ function addQuiz() {
         })
     }
 }
+
+function fileChange(e: any) {
+    const files = e.target?.files
+    const f = files && files.length ? files[0] : undefined
+    
+    if (f) {
+        const reader = new FileReader();
+
+        reader.onload = () => quizJson.value = reader.result as string
+        reader.readAsText(f);
+    }
+}
 </script>
 <template>
     <div class="container mt-5">
@@ -66,6 +78,7 @@ function addQuiz() {
                     <div class="mb-3">
                         <textarea class="form-control" cols="30" rows="10" placeholder="Enter quiz json" v-model="quizJson"></textarea>
                     </div>
+                    <div class="mb-3"><input class="form-control" type="file" @change="fileChange"></div>
                 </form>
             </div>
             <div class="modal-footer">
