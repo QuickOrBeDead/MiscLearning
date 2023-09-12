@@ -1,0 +1,1 @@
+docker run -d -p 8080:80 -e VARIABLE1=var1valueprod -e VARIABLE2=var2valueprod vue-environment-variables-docker
