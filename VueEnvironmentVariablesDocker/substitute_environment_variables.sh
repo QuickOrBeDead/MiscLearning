@@ -16,6 +16,3 @@ do
     sed -i 's|__'"$key"'__|'"$value"'|g' $file
   done
 done
-
-# Starting NGINX
-nginx -g 'daemon off;'

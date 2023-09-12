@@ -15,4 +15,5 @@ COPY nginx.conf /etc/nginx/nginx.conf
 # Overriding the default NGINX container behavior
 COPY ./substitute_environment_variables.sh /substitute_environment_variables.sh
 RUN chmod +x /substitute_environment_variables.sh
-ENTRYPOINT ["/entrypoint.sh"]
+RUN ./substitute_environment_variables.sh
+ENTRYPOINT ["nginx", "-g", "daemon off;"]
