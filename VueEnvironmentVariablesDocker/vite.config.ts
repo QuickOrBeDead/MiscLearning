@@ -15,7 +15,7 @@ export default defineConfig({
       // Create a separate output bundle for your specific file
       manualChunks(id) {
         if (id.endsWith('src/config.ts')) {
-          return 'config'; // This will create a separate bundle for config-[hash].js
+          return 'config' // This will create a separate bundle for config-[hash].js
         }
       }
     }
