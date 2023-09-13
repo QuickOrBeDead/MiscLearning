@@ -9,8 +9,8 @@ defineProps<{ msg: string }>()
   <h1>{{ msg }}</h1>
 
   <div class="card">  
-    <p>var1 = {{ config.variable1 }} </p>
-    <p>var2 = {{ config.variable2 }} </p>
+    <p>VITE_VARIABLE1: {{ config.variable1 }} </p>
+    <p>VITE_VARIABLE2: {{ config.variable2 }} </p>
   </div>
 </template>
 
