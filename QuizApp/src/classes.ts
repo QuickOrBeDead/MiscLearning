@@ -271,6 +271,19 @@ export class TemplatedOptionsContainer implements IOptionTemplate, IOptionsConta
         return { isSelected: false, allSelected: false }
     }
 
+    getCorrectAnswers(): string[] {
+        const result: string[] = []
+        this.groups.forEach(g => {
+            g.itemsContainer.options.forEach(o => {
+                if (o.isCorrect) {
+                    result.push(o.text)
+                }
+            })
+        })
+
+        return result
+    }
+
     static map(o: IOptionTemplate): TemplatedOptionsContainer {
         const parts: OptionTemplatePart[] = []
         const groups: OptionGroup[] = []

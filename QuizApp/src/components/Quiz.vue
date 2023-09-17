@@ -288,6 +288,15 @@ function exportQuiz() {
         </div>
       </div>
 
+      <div v-if="showAnswer && question?.questionType === 'TemplatedChoice'" class="row">
+        <div class="col">
+          <h3>Correct Answers</h3>
+          <ol>
+            <li v-for="a in (question?.optionsContainer as TemplatedOptionsContainer).getCorrectAnswers()">{{ a }}</li>
+          </ol>
+        </div>
+      </div>
+
       <div v-if="showAnswer && question?.explanation !== undefined" class="row">
         <div class="col">
           <h3>Explanation</h3>
