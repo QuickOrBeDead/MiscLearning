@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onBeforeMount, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { Question, Quiz, SimpleOptionsContainer, TemplatedOptionsContainer, DragDropOptionsContainer, Option, OptionTemplatePart, OptionGroup } from '../classes'
 import { QuizDb } from '../db/QuizDb'
@@ -17,7 +17,10 @@ const currentPoints = ref<number>(0)
 const totalQuestions = ref<number>(0)
 const correctQuestions = ref<number>(0)
 const inCorrectQuestions = ref<number>(0)
+const time = ref<string>("")
 const quizJson = ref<string>()
+const startDate = new Date()
+let timer = 0
 
 const quizDb = new QuizDb()
 let editQuestionModal: Modal
@@ -34,10 +37,31 @@ onMounted(() => {
       calculateCurrentPoints()
       loadQuestion()
 
+      timer = window.setInterval(() => {
+        let delta = Math.floor((new Date().getTime() - startDate.getTime()) / 1000)
+
+        const days = Math.floor(delta / 86400)
+        delta -= days * 86400
+
+        const hours = Math.floor(delta / 3600) % 24
+        delta -= hours * 3600
+
+        const minutes = Math.floor(delta / 60) % 60
+        delta -= minutes * 60
+
+        const seconds = delta % 60
+
+        time.value = `${days}.${hours}:${minutes}:${seconds}`
+      }, 1000)
+
       editQuestionModal = new Modal('#editQuestionModal')
       exportQuizModal = new Modal('#exportQuizModal')
     })
   })
+})
+
+onBeforeMount(() => {
+  window.clearInterval(timer)
 })
 
 function loadQuestion() {
@@ -211,6 +235,7 @@ function exportQuiz() {
           <h1>{{ quiz.title }} <button type="button" class="btn btn-primary" @click="exportQuiz" data-bs-toggle="modal" data-bs-target="#exportQuizModal">Export</button></h1>
           <p>Points: {{ currentPoints }} / {{ totalPoints }}</p>
           <p>Correct: {{ correctQuestions }} / {{ totalQuestions }} Incorrect: {{ inCorrectQuestions }} / {{ correctQuestions + inCorrectQuestions }}</p>
+          <p>Time: {{ time }}</p>
         </div>
       </div>
 
