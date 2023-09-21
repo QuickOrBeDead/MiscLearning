@@ -16,6 +16,7 @@ const totalPoints = ref<number>(0)
 const currentPoints = ref<number>(0)
 const totalQuestions = ref<number>(0)
 const correctQuestions = ref<number>(0)
+const inCorrectQuestions = ref<number>(0)
 const quizJson = ref<string>()
 
 const quizDb = new QuizDb()
@@ -91,6 +92,7 @@ function calculateCurrentPoints() {
   if (quiz.value) {
     currentPoints.value = quiz.value.getCurrentPoints()
     correctQuestions.value = quiz.value.getCorrectQuestionCount()
+    inCorrectQuestions.value = quiz.value.getInCorrectQuestionCount()
   }
 }
 
@@ -208,7 +210,7 @@ function exportQuiz() {
         <div class="col">
           <h1>{{ quiz.title }} <button type="button" class="btn btn-primary" @click="exportQuiz" data-bs-toggle="modal" data-bs-target="#exportQuizModal">Export</button></h1>
           <p>Points: {{ currentPoints }} / {{ totalPoints }}</p>
-          <p>Correct Answers: {{ correctQuestions }} / {{ totalQuestions }}</p>
+          <p>Correct: {{ correctQuestions }} / {{ totalQuestions }} Incorrect: {{ inCorrectQuestions }} / {{ correctQuestions + inCorrectQuestions }}</p>
         </div>
       </div>
 

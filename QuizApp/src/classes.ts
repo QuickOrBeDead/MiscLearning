@@ -21,6 +21,10 @@ export class Quiz implements IQuiz {
         return this.questions.reduce((i, q) => i + (q.isCorrect() ? 1 : 0), 0)
     }
 
+    getInCorrectQuestionCount() {
+        return this.questions.reduce((i, q) => i + (q.isInCorrect() ? 1 : 0), 0)
+    }
+
     static map(q: IQuiz): Quiz {
         const questions: Question[] = []
         q.questions.forEach(x => questions.push(Question.map(x)))
@@ -70,6 +74,14 @@ export class Question implements IQuestion {
       
     isCorrect() {
         return this.getSelectedCorrectAnswerCount() === this.getCorrectAnswerCount()
+    }
+
+    isInCorrect() {
+        if (this.areAllChoicesMade()) {
+            return !this.isCorrect()
+        }
+
+        return false
     }
 
     static map(q: IQuestion): Question {
