@@ -51,7 +51,7 @@ onMounted(() => {
 
         const seconds = delta % 60
 
-        time.value = `${days}.${hours}:${minutes}:${seconds}`
+        time.value = `${days}.${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
       }, 1000)
 
       editQuestionModal = new Modal('#editQuestionModal')
