@@ -216,6 +216,40 @@ function onQuestionTypeChange(event: any, q: Question | undefined) {
   }
 }
 
+function isCorrect(container: TemplatedOptionsContainer, i : number) {
+  if (i === undefined) {
+    i = 0
+  }
+
+  if (i >= container.groups.length) {
+    return false
+  }
+
+  const group = container.groups[i]
+  if (group === undefined) {
+    return false
+  }
+
+  return group.itemsContainer.isCorrect()
+}
+
+function getOptions(container: TemplatedOptionsContainer, i: number) {
+  if (i === undefined) {
+    i = 0
+  }
+
+  if (i >= container.groups.length) {
+    return []
+  }
+
+  const group = container.groups[i]
+  if (group === undefined) {
+    return []
+  }
+  
+  return group.itemsContainer.options
+}
+
 function exportQuiz() {
   if (!quiz.value) {
     return
@@ -293,10 +327,10 @@ function exportQuiz() {
                 <template v-if="part.type === 'Text'">
                   <b v-html="part.value"></b>
                 </template>
-                <template v-if="part.type === 'OptionsGroup' && (part.value as number) < (question?.optionsContainer as TemplatedOptionsContainer).groups.length">
-                  <select :disabled="showAnswer" :class="showAnswer ? ((question?.optionsContainer as TemplatedOptionsContainer).groups[part.value as number].itemsContainer.isCorrect() ? 'answer-select-correct' : 'answer-select-incorrect') : ''" @change="event => onOptionGroupSelected(part.value as number, event)">
+                <template v-if="part.type === 'OptionsGroup'">
+                  <select :disabled="showAnswer" :class="showAnswer ? (isCorrect(question?.optionsContainer as TemplatedOptionsContainer, part.value as number) ? 'answer-select-correct' : 'answer-select-incorrect') : ''" @change="event => onOptionGroupSelected(part.value as number, event)">
                     <option value="">Choose..</option>
-                    <template v-for="(option, index) in (question?.optionsContainer as TemplatedOptionsContainer).groups[part.value as number].itemsContainer.options">
+                    <template v-for="(option, index) in getOptions(question?.optionsContainer as TemplatedOptionsContainer, part.value as number)">
                       <option :value="index">{{ option.text }}</option>
                     </template>
                   </select>
