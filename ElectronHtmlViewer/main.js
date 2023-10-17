@@ -3,7 +3,7 @@ const fs = require('fs')
 const path = require('path')
 
 let _view
-let _folder = '/home/boraa/Documents/Projects/Certificates/az204'
+let _folder = '/home/boraa/Documents/Projects/Certificates/az400'
 let _files = []
 let _fileIndex = 0
 
