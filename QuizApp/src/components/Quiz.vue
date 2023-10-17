@@ -293,7 +293,7 @@ function exportQuiz() {
                 <template v-if="part.type === 'Text'">
                   <b v-html="part.value"></b>
                 </template>
-                <template v-if="part.type === 'OptionsGroup'">
+                <template v-if="part.type === 'OptionsGroup' && (part.value as number) < (question?.optionsContainer as TemplatedOptionsContainer).groups.length">
                   <select :disabled="showAnswer" :class="showAnswer ? ((question?.optionsContainer as TemplatedOptionsContainer).groups[part.value as number].itemsContainer.isCorrect() ? 'answer-select-correct' : 'answer-select-incorrect') : ''" @change="event => onOptionGroupSelected(part.value as number, event)">
                     <option value="">Choose..</option>
                     <template v-for="(option, index) in (question?.optionsContainer as TemplatedOptionsContainer).groups[part.value as number].itemsContainer.options">
