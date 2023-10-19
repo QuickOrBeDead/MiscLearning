@@ -303,7 +303,7 @@ function exportQuiz() {
                     group="choice"
                     itemKey="text">
                     <template #item="{ element }">
-                      <div class="list-group-item" :class="showAnswer ? (element.isCorrect ? 'bg-success text-white' : '') : ''">{{ element.text }} <span v-if="showAnswer && element.order !== undefined" class="badge bg-secondary">{{ element.order + 1 }}</span></div>
+                      <div class="list-group-item" :class="showAnswer ? (element.isCorrect ? 'bg-success text-white' : '') : ''"><span v-html="element.text"></span> <span v-if="showAnswer && element.order !== undefined" class="badge bg-secondary">{{ element.order + 1 }}</span></div>
                     </template>
                   </draggable>
                 </div>
@@ -316,7 +316,7 @@ function exportQuiz() {
                     group="choice"
                     itemKey="text">
                     <template #item="{ element }">
-                      <div class="list-group-item" :class="showAnswer ? (element.isSelectedCorrect() ? 'bg-success text-white' : 'bg-danger text-white') : ''">{{ element.text }} <span v-if="showAnswer && element.order !== undefined" class="badge bg-secondary">{{ element.order + 1 }}</span></div>
+                      <div class="list-group-item" :class="showAnswer ? (element.isSelectedCorrect() ? 'bg-success text-white' : 'bg-danger text-white') : ''"><span v-html="element.text"></span> <span v-if="showAnswer && element.order !== undefined" class="badge bg-secondary">{{ element.order + 1 }}</span></div>
                     </template>
                   </draggable>
                 </div>
