@@ -250,6 +250,15 @@ function getOptions(container: TemplatedOptionsContainer, i: number) {
   return group.itemsContainer.options
 }
 
+function getCorrectAnswers(container: TemplatedOptionsContainer)
+{
+  if (!container || !container.getCorrectAnswers) {
+    return []
+  }
+
+  return container.getCorrectAnswers()
+}
+
 function exportQuiz() {
   if (!quiz.value) {
     return
@@ -353,7 +362,7 @@ function exportQuiz() {
         <div class="col">
           <h3>Correct Answers</h3>
           <ol>
-            <li v-for="a in (question?.optionsContainer as TemplatedOptionsContainer).getCorrectAnswers()">{{ a }}</li>
+            <li v-for="a in getCorrectAnswers(question?.optionsContainer as TemplatedOptionsContainer)">{{ a }}</li>
           </ol>
         </div>
       </div>
