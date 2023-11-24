@@ -61,6 +61,18 @@ export class QuizDb
         }
     }
 
+    deleteQuiz(id: number, callback: () => void) {
+        const s = this.getQuizStore("readwrite")
+        const deleteRequest = s.delete(id)
+        deleteRequest.onsuccess = function() {
+            callback()
+        }
+
+        deleteRequest.onerror = function(event: any) {
+            console.log("Add request error:", event.target.error);
+        }
+    }
+
     getQuiz(id: number, callback: (t: IQuiz) => void) {
         const s = this.getQuizStore("readonly")
         const getRequest = s.get(id)

@@ -34,6 +34,15 @@ function addQuiz() {
     }
 }
 
+function deleteQuiz(id: number) {
+   const isConfirmed = confirm("Are you sure?")
+   if (isConfirmed) {
+        quizDb.deleteQuiz(id, () => {
+            loadQuizzes()
+        })
+   }
+}
+
 function fileChange(e: any) {
     const files = e.target?.files
     const f = files && files.length ? files[0] : undefined
@@ -61,7 +70,7 @@ function fileChange(e: any) {
         <div class="row">
             <div class="col">
                 <ul v-for="q in quizzes">
-                    <li><router-link :to="{ name: 'Quiz', params: { id: q.id } }">{{ q.title }}</router-link></li>
+                    <li><router-link :to="{ name: 'Quiz', params: { id: q.id } }">{{ q.title }}</router-link> <button type="button" class="btn btn-sm btn-primary" @click="deleteQuiz(q.id)">Delete</button></li>
                 </ul>
             </div>
         </div>
