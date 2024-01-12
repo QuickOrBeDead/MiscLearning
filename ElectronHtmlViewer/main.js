@@ -2,14 +2,15 @@ const { app, BrowserWindow, BrowserView, ipcMain } = require('electron')
 const fs = require('fs')
 const path = require('path')
 
+let _win
 let _view
-let _folder = '/home/boraa/Documents/Projects/Certificates/az400'
+let _folder = '/home/boraa/Documents/AZ-400-Learning'
 let _files = []
 let _fileIndex = 0
 
 
 const createWindow = () => {
-  const win = new BrowserWindow({
+  const win = _win = new BrowserWindow({
     width: 1500,
     height: 900,
     webPreferences: {
@@ -48,26 +49,44 @@ const viewFile = function() {
   if (file) {
     _view.webContents.loadFile(file)
   }
+
+  _win.webContents.send('fileUpdated', { current: _fileIndex + 1, total: _files ? _files.length : 0 })
 }
 
 const loadFiles = function(folder) {
   _files = []
   _fileIndex = 0
 
-  if (!folder || !fs.existsSync(folder)) {
-    return
-  }
 
-  var items = fs.readdirSync(folder)
-  items.sort()
+  const addFiles = function(dir) {
+    if (!dir || !fs.existsSync(dir)) {
+      return
+    }
+  
+    const items = fs.readdirSync(dir)
+    items.sort()
 
-  for (let i = 0; i < items.length; i++) {
-      const filename = path.join(folder, items[i]);
-      const stat = fs.lstatSync(filename);
-      if (!stat.isDirectory() && /\.html$/.test(filename)) {
+    const dirs = []
+
+    for (let i = 0; i < items.length; i++) {
+      const filename = path.join(dir, items[i])
+      const stat = fs.lstatSync(filename)
+
+      if (stat.isDirectory()) {
+        dirs.push(filename)
+      } else if (/\.html$/.test(filename)) {
         _files.push(filename)
       }
+    }
+
+    dirs.sort()
+
+    for (let i = 0; i < dirs.length; i++) {
+      addFiles(dirs[i]) 
+    }
   }
+
+  addFiles(folder)
 
   if (_files.length) {
     viewFile()
