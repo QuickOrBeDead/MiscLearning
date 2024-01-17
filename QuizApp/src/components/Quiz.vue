@@ -277,7 +277,7 @@ function exportQuiz() {
         <div class="col">
           <h1>{{ quiz.title }} <button type="button" class="btn btn-primary" @click="exportQuiz" data-bs-toggle="modal" data-bs-target="#exportQuizModal">Export</button></h1>
           <p class="lh-1 mb-1">Points: {{ currentPoints }} / {{ totalPoints }}</p>
-          <p class="lh-1 mb-1">Correct: {{ correctQuestions }} / {{ totalQuestions }} Incorrect: {{ inCorrectQuestions }} / {{ correctQuestions + inCorrectQuestions }}</p>
+          <p class="lh-1 mb-1">Correct: {{ correctQuestions }} / {{ totalQuestions }} Incorrect: {{ inCorrectQuestions }} / {{ correctQuestions + inCorrectQuestions }} (%{{ (correctQuestions + inCorrectQuestions) === 0 ? 0 : Math.floor((correctQuestions / (correctQuestions + inCorrectQuestions)) * 100) }})</p>
           <p class="lh-1 mb-1">Time: {{ time }}</p>
         </div>
       </div>
