@@ -4,7 +4,6 @@ import { useRoute } from 'vue-router'
 import { Question, Quiz, SimpleOptionsContainer, TemplatedOptionsContainer, DragDropOptionsContainer, Option, OptionTemplatePart, OptionGroup } from '../classes'
 import { QuizDb } from '../db/QuizDb'
 import draggable from 'vuedraggable'
-import { Modal } from 'bootstrap'
 import { QuestionType } from '../types'
 
 const route = useRoute()
@@ -19,12 +18,12 @@ const correctQuestions = ref<number>(0)
 const inCorrectQuestions = ref<number>(0)
 const time = ref<string>("0.00:00:00")
 const quizJson = ref<string>()
+const questionNo = ref<number>()
 const startDate = new Date()
 let timer = 0
 
 const quizDb = new QuizDb()
-let editQuestionModal: Modal
-let exportQuizModal: Modal
+
 
 onMounted(() => {
   quizDb.init(() => {
@@ -53,9 +52,6 @@ onMounted(() => {
 
         time.value = `${days}.${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
       }, 1000)
-
-      editQuestionModal = new Modal('#editQuestionModal')
-      exportQuizModal = new Modal('#exportQuizModal')
     })
   })
 })
@@ -134,10 +130,6 @@ function prev() {
   }
 
   loadQuestion()
-}
-
-function editQuestion() {
-  editQuestionModal.show()
 }
 
 function removeDragDropOption(c: DragDropOptionsContainer, i: number) {
@@ -265,8 +257,30 @@ function exportQuiz() {
   }
 
   quizJson.value = JSON.stringify(Quiz.export(quiz.value))
+}
 
-  exportQuizModal.show()
+function gotoQuestion() {
+  if (!quiz.value) {
+    return
+  }
+
+  if (!questionNo.value) {
+    return
+  }
+
+  if (questionNo.value <= 1) {
+    questionIndex.value = 0
+  } else if (questionNo.value > quiz.value.questions.length) {
+    questionIndex.value = quiz.value.questions.length - 1
+  } else {
+    questionIndex.value = questionNo.value - 1
+  }
+
+  loadQuestion()
+
+  questionNo.value = undefined
+
+  document.getElementById('btnCloseGotoModal')?.click()
 }
 </script>
 
@@ -286,6 +300,7 @@ function exportQuiz() {
         <div class="col">
           <div class="btn-container">
             <button type="button" class="btn btn-primary" :disabled="questionIndex === 0" @click="prev">Previous</button>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#gotoModal">Goto</button>
             <button type="button" class="btn btn-primary" :disabled="questionIndex === quiz.questions.length - 1" @click="next">Next</button>
           </div>
         </div>
@@ -293,7 +308,7 @@ function exportQuiz() {
 
       <div class="row">
         <div class="col">
-          <h3>Question {{ questionIndex + 1 }}: <button type="button" class="btn btn-primary" @click="editQuestion" data-bs-toggle="modal" data-bs-target="#editQuestionModal">Edit</button></h3>
+          <h3>Question {{ questionIndex + 1 }}: <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editQuestionModal">Edit</button></h3>
           <p v-html="question?.text"></p>
         </div>
       </div>
@@ -583,6 +598,28 @@ function exportQuiz() {
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="gotoModal" tabindex="-1" aria-labelledby="gotoModalTitle" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="gotoModalTitle">Go to Question</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="mb-3">
+                        <input type="number" class="form-control" placeholder="Question No" v-model="questionNo" />
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button id="btnCloseGotoModal" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" @click="gotoQuestion">Go</button>
             </div>
             </div>
         </div>
