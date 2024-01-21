@@ -34,6 +34,7 @@ export interface IOptionGroup {
 export interface IOptionsContainer {
     getCorrectAnswerCount(): number
     getSelectedCorrectAnswerCount(): number
+    reset(): void
 }
 
 export interface ISimpleOptionsContainer {

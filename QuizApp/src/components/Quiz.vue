@@ -282,6 +282,38 @@ function gotoQuestion() {
 
   document.getElementById('btnCloseGotoModal')?.click()
 }
+
+function gotoFirstInCorrectQuestion() {
+  if (!quiz.value) {
+    return
+  }
+
+  const index = getFirstInCorrectQuestionIndex()
+  if (index !== undefined) {
+    quiz.value.questions[index].reset()
+    questionIndex.value = index
+    loadQuestion()
+  }
+
+  document.getElementById('btnCloseGotoModal')?.click()
+}
+
+function getFirstInCorrectQuestionIndex() {
+  if (!quiz.value) {
+    return undefined
+  }
+
+  const questions = quiz.value.questions
+  const len = questions.length
+  for (let i = 0; i < len; i++) {
+    const q = questions[i]
+    if (q.isInCorrect()) {
+      return i
+    }
+  }
+
+  return undefined
+}
 </script>
 
 <template>
@@ -301,6 +333,7 @@ function gotoQuestion() {
           <div class="btn-container">
             <button type="button" class="btn btn-primary" :disabled="questionIndex === 0" @click="prev">Previous</button>
             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#gotoModal">Goto</button>
+            <button type="button" class="btn btn-primary" v-if="inCorrectQuestions > 0" @click="gotoFirstInCorrectQuestion">Next Incorrect</button>
             <button type="button" class="btn btn-primary" :disabled="questionIndex === quiz.questions.length - 1" @click="next">Next</button>
           </div>
         </div>

@@ -84,6 +84,10 @@ export class Question implements IQuestion {
         return false
     }
 
+    reset() {
+        this.optionsContainer.reset()
+    }
+
     static map(q: IQuestion): Question {
         let optionsContainer: SimpleOptionsContainer | TemplatedOptionsContainer | DragDropOptionsContainer
         if (q.questionType === 'SimpleChoice') {
@@ -222,6 +226,10 @@ export class SimpleOptionsContainer implements ISimpleOptionsContainer, IOptions
         return { isSelected: false, allSelected: false }
     }
 
+    reset(): void {
+        this.options.forEach(x => x.isSelected = false)
+    }
+
     static map(c: ISimpleOptionsContainer): SimpleOptionsContainer {
         const options: Option[] = []
         c.options.forEach(x => options.push(Option.map(x)))
@@ -296,6 +304,10 @@ export class TemplatedOptionsContainer implements IOptionTemplate, IOptionsConta
         return result
     }
 
+    reset(): void {
+        this.groups.forEach(g => g.itemsContainer.reset())
+    }
+
     static map(o: IOptionTemplate): TemplatedOptionsContainer {
         const parts: OptionTemplatePart[] = []
         const groups: OptionGroup[] = []
@@ -358,6 +370,13 @@ export class DragDropOptionsContainer implements IOptionsContainer {
 
     getCount(fn: (a: Option) => boolean) {
         return this.options.reduce((n, a) => fn(a) ? n + 1 : n, 0)
+    }
+
+    reset(): void {
+        this.options.forEach(x => {
+            x.isSelected = false
+            x.selectedOrder = undefined
+        })
     }
 
     static map(c: IDragDropOptionsContainer): DragDropOptionsContainer {
