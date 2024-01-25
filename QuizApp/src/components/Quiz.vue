@@ -398,7 +398,7 @@ function getFirstInCorrectQuestionIndex() {
               <div class="form-check" v-for="(option, index) in ((question?.optionsContainer as SimpleOptionsContainer).options)" :key="index">
                 <input class="answer-option-input form-check-input" :disabled="showAnswer" :type="(question?.optionsContainer as SimpleOptionsContainer).isMultipleChoice() ? 'checkbox' : 'radio'" name="answer" :id="'a' + index" :value="index" :checked="option.isSelected" @change="event => onOptionSelected(index, event)">
                 <label class="answer-option-label form-check-label" :class="showAnswer && option.isCorrect ? 'bg-success text-white' : (showAnswer && !option.isCorrect && option.isSelected ? 'bg-danger text-white' : '')" :for="'a' + index">
-                  {{ option.text }} <i class="bi float-end" v-if="showAnswer" :class="option.isCorrect ? 'bi-check-circle-fill' : 'bi-x-circle-fill'"></i>
+                  <span v-html="option.text"></span> <i class="bi float-end" v-if="showAnswer" :class="option.isCorrect ? 'bi-check-circle-fill' : 'bi-x-circle-fill'"></i>
                 </label>
               </div>
             </template> 
