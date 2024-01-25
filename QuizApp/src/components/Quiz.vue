@@ -314,6 +314,16 @@ function getFirstInCorrectQuestionIndex() {
 
   return undefined
 }
+
+function addQuestion() {
+  if (!quiz.value) {
+    return
+  }
+
+  quiz.value.questions.push(new Question('', new SimpleOptionsContainer([]), 'SimpleChoice', ''))
+  questionIndex.value = quiz.value.questions.length - 1
+  loadQuestion()
+}
 </script>
 
 <template>
@@ -321,7 +331,7 @@ function getFirstInCorrectQuestionIndex() {
     <div class="container mt-2">
       <div class="row">
         <div class="col">
-          <h1>{{ quiz.title }} <button type="button" class="btn btn-primary" @click="exportQuiz" data-bs-toggle="modal" data-bs-target="#exportQuizModal">Export</button></h1>
+          <h1>{{ quiz.title }} <button type="button" class="btn btn-primary" @click="exportQuiz" data-bs-toggle="modal" data-bs-target="#exportQuizModal">Export</button>  <button type="button" class="btn btn-primary" @click="addQuestion">Add</button></h1>
           <p class="lh-1 mb-1">Points: {{ currentPoints }} / {{ totalPoints }}</p>
           <p class="lh-1 mb-1">Correct: {{ correctQuestions }} / {{ totalQuestions }} Incorrect: {{ inCorrectQuestions }} / {{ correctQuestions + inCorrectQuestions }} (%{{ (correctQuestions + inCorrectQuestions) === 0 ? 0 : Math.floor((correctQuestions / (correctQuestions + inCorrectQuestions)) * 100) }})</p>
           <p class="lh-1 mb-1">Time: {{ time }}</p>
