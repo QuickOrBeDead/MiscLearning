@@ -25,6 +25,20 @@ export class Quiz implements IQuiz {
         return this.questions.reduce((i, q) => i + (q.isInCorrect() ? 1 : 0), 0)
     }
 
+    shuffle() {
+        const questions = [...this.questions]
+        const shuffled = []
+      
+        while (questions.length) {
+          const r = Math.floor(Math.random() * questions.length)
+          const q = questions.splice(r, 1)[0]
+          q.shuffle()
+          shuffled.push(q)
+        }
+      
+        this.questions = shuffled
+    }
+
     static map(q: IQuiz): Quiz {
         const questions: Question[] = []
         q.questions.forEach(x => questions.push(Question.map(x)))
@@ -86,6 +100,10 @@ export class Question implements IQuestion {
 
     reset() {
         this.optionsContainer.reset()
+    }
+
+    shuffle() {
+        this.optionsContainer.shuffle() 
     }
 
     static map(q: IQuestion): Question {
@@ -230,6 +248,17 @@ export class SimpleOptionsContainer implements ISimpleOptionsContainer, IOptions
         this.options.forEach(x => x.isSelected = false)
     }
 
+    shuffle(): void {
+        const options = [...this.options]
+        const shuffled = []
+        while(options.length) {
+            const r = Math.floor(Math.random() * options.length)
+            shuffled.push(options.splice(r, 1)[0])
+        }
+
+        this.options = shuffled
+    }
+
     static map(c: ISimpleOptionsContainer): SimpleOptionsContainer {
         const options: Option[] = []
         c.options.forEach(x => options.push(Option.map(x)))
@@ -308,6 +337,10 @@ export class TemplatedOptionsContainer implements IOptionTemplate, IOptionsConta
         this.groups.forEach(g => g.itemsContainer.reset())
     }
 
+    shuffle(): void {
+        this.groups.forEach(g => g.itemsContainer.shuffle())
+    }
+
     static map(o: IOptionTemplate): TemplatedOptionsContainer {
         const parts: OptionTemplatePart[] = []
         const groups: OptionGroup[] = []
@@ -377,6 +410,17 @@ export class DragDropOptionsContainer implements IOptionsContainer {
             x.isSelected = false
             x.selectedOrder = undefined
         })
+    }
+
+    shuffle(): void {
+        const options = [...this.options]
+        const shuffled = []
+        while(options.length) {
+            const r = Math.floor(Math.random() * options.length)
+            shuffled.push(options.splice(r, 1)[0])
+        }
+
+        this.options = shuffled
     }
 
     static map(c: IDragDropOptionsContainer): DragDropOptionsContainer {
